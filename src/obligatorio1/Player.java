@@ -7,12 +7,13 @@ package obligatorio1;
 
 /**
  *
- * @author Dario
+ * @author - Darío Dathaguy - Programación 2 - Número de estudiante: 220839 - Universidad ORT 
+ * @author - Álvaro Nicoli - Programación 2 - Número de estudiante: 220159 - Universidad ORT
  */
 public class Player {
     private String name;
     private String alias;
-    private int matches;
+    private int gamesPlayed;
     private String color;
     private int wins;
    
@@ -22,7 +23,7 @@ public class Player {
         this.setName("Sin nombre");
         this.setAlias("none");
         this.setColor("Sin color");
-        matches = 0;
+        gamesPlayed = 0;
         wins = 0;
         
     }
@@ -30,7 +31,7 @@ public class Player {
     public Player(String name, String alias) {
         this.setName(name);
         this.setAlias(alias);
-        matches = 0;
+        gamesPlayed = 0;
         wins = 0;
     }
 
@@ -56,8 +57,8 @@ public class Player {
         return alias;
     }
 
-    public int getMatches() {
-        return matches;
+    public int getGamesPlayed() {
+        return gamesPlayed;
     }
 
     public int getWins() {
@@ -73,7 +74,7 @@ public class Player {
     @Override
     public String toString() {
         return "El nombre del jugador: " + this.getName() + "\nSu alias es: " + this.getAlias()
-                + "\nSu cantidad de partidas es:" + this.getMatches()
+                + "\nSu cantidad de partidas es:" + this.getGamesPlayed()
                 + "\nSu cantidad de victorias es: " + this.getWins();
                 
     }

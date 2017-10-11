@@ -5,25 +5,25 @@
  * and open the template in the editor.
  */
 package obligatorio1;
-import java.lang.System;
 import java.util.ArrayList;
 import java.util.Scanner;
+
 /**
  *
- * @author Dario
+ * @author - Darío Dathaguy - Programación 2 - Número de estudiante: 220839 - Universidad ORT 
+ * @author - Álvaro Nicoli - Programación 2 - Número de estudiante: 220159 - Universidad ORT
  */
 public class Main {
     /**
      * @param args the command line arguments
      */
     public static void main(String[] args) {
-      System.out.println("Bienvenido a las damas chinas");
+      System.out.println("Bienvenido. Baila como el Papu");
       MySystem system = new MySystem();
       int opcion = 0;
       while (opcion == 0){
       switch (inputString("\n1- Crear Usuario\n2- Estadisticas de usuario"
                     + "\n3- Jogar"
-                   
                     + "\n4- Salir")) {
                 case "1":
                     createPlayer(system);
@@ -51,6 +51,32 @@ public class Main {
 
       }
       }
+    }
+    
+    //Crear jugador
+    public static void createPlayer(MySystem system) {
+        Player player = new Player(inputString("Ingrese un nombre"), inputString("Ingrese un alias"));
+        
+        if (system.getPlayerList().contains(player)) {
+            player.setAlias(inputString("Vuelva a ingresar un alias que no exista."));
+        }
+        
+        system.getPlayerList().add(player);
+    }
+    //Elejir jugador
+    public static Player selectPlayer(MySystem system) {
+        ArrayList<Player> playerlist = system.getPlayerList();
+        
+        if (!playerlist.isEmpty()) {
+            System.out.println("No se registro ni el Cholo");
+        }
+        
+        for (int i = 0; i < playerlist.size(); i++) {
+            System.out.print((i + 1) + " - " + playerlist.get(i).getAlias() + "\n");
+        }
+        
+        int selected = inputInt("Selecciona tu jugador >> ", 1, playerlist.size());
+        return playerlist.get(selected - 1);
     }
     
       //Método para definir el ingreso de un String. Se asegura que el string no sea nulo
@@ -86,32 +112,6 @@ public class Main {
         } while (retVal > max || retVal < min);
 
         return retVal;
-    }
-    //Crear jugador
-    public static void createPlayer(MySystem system) {
-          
-        Player elplayer = new Player(inputString("Ingrese un nombre"), inputString("Ingrese un alias"));
-        
-        if (system.getPlayerList().contains(elplayer)) {
-            elplayer.setAlias(inputString("Vuelva a ingresar un alias que no exista."));
-        }
-        
-        system.getPlayerList().add(elplayer);
-    }
-    //Elejir jugador
-    public static Player selectPlayer(MySystem system) {
-        ArrayList<Player> playerlist = system.getPlayerList();
-        
-        if (!playerlist.isEmpty()) {
-            System.out.println("Ingrese el número del artículo");
-        }
-        
-        for (int i = 0; i < playerlist.size(); i++) {
-            System.out.print(i + 1 + "- " + playerlist.get(i).getAlias() + "\n");
-        }
-        
-        int index = inputInt("", 1, playerlist.size());
-        return playerlist.get(index - 1);
     }
 }
 

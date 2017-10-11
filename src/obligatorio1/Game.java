@@ -9,7 +9,8 @@ import java.util.ArrayList;
 
 /**
  *
- * @author Dario
+ * @author - Darío Dathaguy - Programación 2 - Número de estudiante: 220839 - Universidad ORT 
+ * @author - Álvaro Nicoli - Programación 2 - Número de estudiante: 220159 - Universidad ORT
  */
 public class Game {
     Player player1;
@@ -51,4 +52,13 @@ public class Game {
         return status;
     }
  
+    public String getPrintableGrid() {
+        String retVal = "";
+        
+        for (Token[] grid1 : this.grid) {
+            
+        }
+        
+        return retVal;
+    }
 }
