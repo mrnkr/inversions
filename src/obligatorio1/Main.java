@@ -18,27 +18,27 @@ public class Main {
      */
     public static void main(String[] args) {
       System.out.println("Bienvenido a las damas chinas");
-      Sistema sistema = new Sistema();
+      MySystem system = new MySystem();
       int opcion = 0;
       while (opcion == 0){
-      switch (ingresoString("\n1- Crear Usuario\n2- Estadisticas de usuario"
+      switch (inputString("\n1- Crear Usuario\n2- Estadisticas de usuario"
                     + "\n3- Jogar"
                    
                     + "\n4- Salir")) {
                 case "1":
-                    createPlayer(sistema);
+                    createPlayer(system);
                     break;
                 case "2":
-                    estadisticas(selectPlayer(sistema));
+                    // estadisticas(selectPlayer(sistema));
                     break;
                 case "3":
                     System.out.println("Seleccione el jugador 1");
-                    Player j1 = selectPlayer(sistema);
+                    Player j1 = selectPlayer(system);
                     System.out.println("Seleccione el jugador 2");
-                    Player j2 = selectPlayer(sistema);
+                    Player j2 = selectPlayer(system);
                     
-                    Match game = new Match(j1,j2,inputInt("Seleccione el tipo de juego (3 a 5)", 3, 5));
-                    game.play();   
+                    Game game = new Game(j1,j2,inputInt("Seleccione el tipo de juego (3 a 5)", 3, 5));
+                    // game.play();   
 
                     break;
                 case "4":
@@ -54,24 +54,24 @@ public class Main {
     }
     
       //Método para definir el ingreso de un String. Se asegura que el string no sea nulo
-    public static String ingresoString(String loquepide) {
+    public static String inputString(String prompt) {
         Scanner input = new Scanner(System.in);
-        String unstring = "";
+        String retVal = "";
         do {
-            System.out.println(loquepide);
-            unstring = input.nextLine();
-        } while (unstring.trim().length() == 0);
+            System.out.println(prompt);
+            retVal = input.nextLine();
+        } while (retVal.trim().length() == 0);
 
-        return unstring;
+        return retVal;
     }
 
     //Método para definir el ingreso de un Int. Se asegura que este se encuentre en un rango dado
-    public static int inputInt(String loquepide, int minimo, int maximo) {
+    public static int inputInt(String prompt, int min, int max) {
         Scanner input = new Scanner(System.in);
-        int retVal = minimo - 1;
+        int retVal = min - 1;
         do {
 
-            System.out.println(loquepide);
+            System.out.println(prompt);
             //Try catch que controla excepciones
             try {
                 retVal = input.nextInt();
@@ -83,30 +83,34 @@ public class Main {
                 //Descarta el valor almacenado anteriormente en el Scanner(Limpia el buffer)
                 input.nextLine();
             }
-        } while (retVal > maximo || retVal < minimo);
+        } while (retVal > max || retVal < min);
 
         return retVal;
     }
     //Crear jugador
-    public static void createPlayer(Sistema elsistema) {
+    public static void createPlayer(MySystem system) {
           
-        Player elplayer = new Player(ingresoString("Ingrese un nombre"),ingresoString("Ingrese un alias"));
-        if(elsistema.getPlayerList().contains(elplayer))
-        elplayer.setAlias(ingresoString("Vuelva a ingresar un alias que no exista."));
-        elsistema.getPlayerList().add(elplayer);
+        Player elplayer = new Player(inputString("Ingrese un nombre"), inputString("Ingrese un alias"));
+        
+        if (system.getPlayerList().contains(elplayer)) {
+            elplayer.setAlias(inputString("Vuelva a ingresar un alias que no exista."));
+        }
+        
+        system.getPlayerList().add(elplayer);
     }
     //Elejir jugador
-    public static Player selectPlayer(Sistema elsistema) {
-        ArrayList<Player> playerlist = elsistema.getPlayerList();
+    public static Player selectPlayer(MySystem system) {
+        ArrayList<Player> playerlist = system.getPlayerList();
+        
         if (!playerlist.isEmpty()) {
             System.out.println("Ingrese el número del artículo");
         }
+        
         for (int i = 0; i < playerlist.size(); i++) {
-
             System.out.print(i + 1 + "- " + playerlist.get(i).getAlias() + "\n");
         }
+        
         int index = inputInt("", 1, playerlist.size());
-
         return playerlist.get(index - 1);
     }
 }
