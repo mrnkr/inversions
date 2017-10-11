@@ -20,8 +20,8 @@ public class Main {
     public static void main(String[] args) {
       System.out.println("Bienvenido. Baila como el Papu");
       MySystem system = new MySystem();
-      int opcion = 0;
-      while (opcion == 0){
+      int option = 0;
+      while (option == 0){
       switch (inputString("\n1- Crear Usuario\n2- Estadisticas de usuario"
                     + "\n3- Jogar"
                     + "\n4- Salir")) {
@@ -42,7 +42,7 @@ public class Main {
 
                     break;
                 case "4":
-                   opcion = 1;
+                   option = 1;
                     break;
                 
                 default:

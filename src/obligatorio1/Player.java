@@ -14,6 +14,7 @@ public class Player {
     private String name;
     private String alias;
     private int gamesPlayed;
+    private int age;
     private String color;
     private int wins;
    
@@ -23,14 +24,16 @@ public class Player {
         this.setName("Sin nombre");
         this.setAlias("none");
         this.setColor("Sin color");
+        this.setAge("18");
         gamesPlayed = 0;
         wins = 0;
         
     }
 
-    public Player(String name, String alias) {
+    public Player(String name, String alias, int age) {
         this.setName(name);
         this.setAlias(alias);
+        this.setAge(age);
         gamesPlayed = 0;
         wins = 0;
     }
@@ -42,6 +45,10 @@ public class Player {
 
     public void setAlias(String alias) {
         this.alias = alias;
+    }
+    
+     public void setAge(int age) {
+        this.age = age;
     }
     
     public void setColor(String color) {
@@ -60,7 +67,11 @@ public class Player {
     public int getGamesPlayed() {
         return gamesPlayed;
     }
-
+    
+    public int getAge() {
+        return age;
+    }
+    
     public int getWins() {
         return wins;
     }
