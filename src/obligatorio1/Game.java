@@ -11,37 +11,34 @@ import java.util.ArrayList;
  *
  * @author Dario
  */
-public class Match {
+public class Game {
     Player player1;
     Player player2;
-    String status;
-    int type;
-    int[][] grid = new int[type][type];
-    private  ArrayList<String> history;
+    String status; // Whose turn it is
+    Token[][] grid;
+    private ArrayList<String> history = new ArrayList<>(); // Store previous moves
+    
     //Constructor
-    public Match(Player p1, Player p2, int aType) {
-        this.setPlayer1(p1);
-        this.setType(aType);
-        this.setStatus("Player1 Turn");
+    public Game(Player player1, Player player2, int size) {
+        this.setPlayer1(player1);
+        this.setPlayer2(player2);
+        this.grid = new Token[size][size];
+        this.setStatus("Player 1's Turn");
         
     }
-     //Métodos Set
+    
     public void setPlayer1(Player p1) {
-        player1 = p1;
+        this.player1 = p1;
     }
 
     public void setPlayer2(Player p2) {
-        player2 = p2;
+        this.player2 = p2;
     }
     
-    public void setType(int aType) {
-        type = aType;
+    public void setStatus(String status) {
+        this.status = status;
     }
     
-    public void setStatus(String aStatus) {
-        status = aStatus;
-    }
-    //Métodos Get
     public Player getPlayer1() {
         return player1;
     }

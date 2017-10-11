@@ -10,21 +10,20 @@ import java.util.ArrayList;
 /**
  *
  * @author - Darío Dathaguy - Programación 2 - Número de estudiante: 220839 - Universidad ORT 
- *         - Álvaro Nicoli - Programación 2 - Número de estudiante: ?????? - Universidad ORT
+ * @author - Álvaro Nicoli - Programación 2 - Número de estudiante: 220159 - Universidad ORT
  */
-public class Sistema {
-private  ArrayList<Player> playerlist;
 
- //Métodos set y get
-    public void setPlayerList(ArrayList<Player> lista){
-        playerlist = lista;
+public class MySystem {
+    private  ArrayList<Player> playerlist;
+    
+    public void setPlayerList(ArrayList<Player> players){
+        this.playerlist = players;
     }
     
     public  ArrayList<Player> getPlayerList(){
         return playerlist;
     }
     
-     //Métodos hay, estos indican si hay Jugadores
     public boolean hasPlayers(){
         return !this.getPlayerList().isEmpty();
     }

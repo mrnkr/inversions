@@ -9,20 +9,20 @@ package obligatorio1;
  *
  * @author Dario
  */
-public class Chip {
+public class Token {
     Player owner;
-    int positionX;
-    int positionY;
+    int x;
+    int y;
       
-    public Chip(Player unplayer, int posicionx, int posiciony) {
-        this.setOwner(unplayer);
-    
-        
+    public Token(Player player, int x, int y) {
+        this.setOwner(player);
+        this.x = x;
+        this.y = y;
     }
     
     //Métodos Set
-    public void setOwner(Player unplayer) {
-        owner = unplayer;
+    public void setOwner(Player player) {
+        owner = player;
     }
 
     

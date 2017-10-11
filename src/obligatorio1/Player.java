@@ -10,8 +10,6 @@ package obligatorio1;
  * @author Dario
  */
 public class Player {
-    
-
     private String name;
     private String alias;
     private int matches;
@@ -29,24 +27,24 @@ public class Player {
         
     }
 
-    public Player(String unnombre, String unalias) {
-        this.setName(unnombre);
-        this.setAlias(unalias);
+    public Player(String name, String alias) {
+        this.setName(name);
+        this.setAlias(alias);
         matches = 0;
         wins = 0;
     }
 
     //Métodos Set
-    public void setName(String nom) {
-        name = nom;
+    public void setName(String name) {
+        this.name = name;
     }
 
-    public void setAlias(String unalias) {
-        alias = unalias;
+    public void setAlias(String alias) {
+        this.alias = alias;
     }
     
-    public void setColor(String uncolor) {
-        color = uncolor;
+    public void setColor(String color) {
+        this.color = color;
     }
     
     //Métodos Get
@@ -83,13 +81,13 @@ public class Player {
     //Redefinir equals.  Un árticulo es igual a otro si tienen el mismo código
     @Override
     public boolean equals(Object o) {
-        boolean esigual;
+        boolean retVal;
         try{
         Player tmplayer = (Player) o;
-        esigual = this.getAlias().equalsIgnoreCase(tmplayer.getAlias());
+        retVal = this.getAlias().equalsIgnoreCase(tmplayer.getAlias());
            }catch(ClassCastException e){
-                esigual = false;
+                retVal = false;
                 }
-        return esigual;
+        return retVal;
     }
 }
