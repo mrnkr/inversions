@@ -24,8 +24,16 @@ public class Game {
         this.setPlayer1(player1);
         this.setPlayer2(player2);
         this.grid = new Token[size][size];
+        this.prepareGrid(player1, player2);
         this.setStatus("Player 1's Turn");
         
+    }
+    
+    public void prepareGrid(Player player1, Player player2) {
+        for (int i = 0; i < this.grid.length; i++) {
+            this.grid[0][i] = new Token(player1, 0, i);
+            this.grid[this.grid.length - 1][i] = new Token(player2, this.grid.length - 1, i);
+        }
     }
     
     public void setPlayer1(Player p1) {
@@ -55,8 +63,14 @@ public class Game {
     public String getPrintableGrid() {
         String retVal = "";
         
-        for (Token[] grid1 : this.grid) {
-            
+        for (int i = 0; i < this.grid.length; i++) {
+            for (int j = 0; j < this.grid[i].length; j++) {
+                if ((i == 0 || i == this.grid.length - 1) && j == (this.grid.length - 1) / 2) {
+                    retVal += "***\n*" + (this.grid[i][j] != null ? this.grid[i][j] : " ") + "*\n***";
+                } else {
+                    retVal += "+-+\n|" + (this.grid[i][j] != null ? this.grid[i][j] : " ") + "|\n+-+";
+                }
+            }
         }
         
         return retVal;

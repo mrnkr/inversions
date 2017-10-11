@@ -33,11 +33,14 @@ public class Main {
                     break;
                 case "3":
                     System.out.println("Seleccione el jugador 1");
-                    Player j1 = selectPlayer(system);
+                    // Player j1 = selectPlayer(system);
+                    Player j1 = new Player();
                     System.out.println("Seleccione el jugador 2");
-                    Player j2 = selectPlayer(system);
+                    Player j2 = new Player();
+                    // Player j2 = selectPlayer(system);
                     
-                    Game game = new Game(j1,j2,inputInt("Seleccione el tipo de juego (3 a 5)", 3, 5));
+                    Game game = new Game(j1,j2,inputInt("Seleccione el tamano de tablero (3 o 5) >>", 3, 5));
+                    System.out.println(game.getPrintableGrid());
                     // game.play();   
 
                     break;

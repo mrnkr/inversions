@@ -12,7 +12,7 @@ package obligatorio1;
  */
 public class Token {
     Player owner;
-    boolean type; // true = Tower - false = Bishop
+    boolean type = true; // true = Tower - false = Bishop
     int x;
     int y;
       
