@@ -94,6 +94,25 @@ public class Game {
     public boolean isPlaying() {
         return !this.finished;
     }
+    
+    /**
+     * Returns true if player that is passed still has tokens left in the grid
+     * @param player - The player
+     * @return - Still has tokens?
+     */
+    public boolean stillHasTokensLeft(Player player) {
+        boolean retVal = false;
+        
+        for (int i = 0; i < this.grid.length && !retVal; i++) {
+            for (int j = 0; j < this.grid[i].length && !retVal; j++) {
+                if (this.grid[i][j].getOwner().equals(player)) {
+                    retVal = true;
+                }
+            }
+        }
+        
+        return retVal;
+    }
  
     /**
      * Generates a String object to present the grid to the user by means of the terminal

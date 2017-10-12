@@ -11,10 +11,10 @@ package obligatorio1;
  * @author - Álvaro Nicoli - Programación 2 - Número de estudiante: 220159 - Universidad ORT
  */
 public class Token {
-    Player owner;
-    boolean type = false; // true = Tower - false = Bishop
-    int x;
-    int y;
+    private Player owner;
+    private boolean type = false; // true = Tower - false = Bishop
+    private int x;
+    private int y;
       
     public Token(Player player, int x, int y) {
         this.setOwner(player);
