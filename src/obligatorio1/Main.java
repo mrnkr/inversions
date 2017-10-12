@@ -34,18 +34,28 @@ public class Main {
                 case "3":
                     System.out.println("Seleccione el jugador 1");
                     // Player j1 = selectPlayer(system);
-                    Player j1 = new Player();
+                    Player j1 = new Player("Joselito", "joselito_patata22");
                     System.out.println("Seleccione el jugador 2");
-                    Player j2 = new Player();
+                    Player j2 = new Player("Nadia", "nadia_love24");
                     // Player j2 = selectPlayer(system);
                     
                     Game game = new Game(j1,j2,inputInt("Seleccione el tamano de tablero (3 o 5) >> ", 3, 5));
-                    System.out.println(game.getPrintableGrid());
-                    game.moveToken(0, 2, 1, 2);
-                    System.out.println(game.getPrintableGrid());
+                    
+                    System.out.println("\n\n");
+                    
+                    while (0 == 0) {
+                        System.out.println(game.getPrintableGrid());
+                        System.out.println(game.getTurnStatus());
+                        try {
+                            game.inputMove(inputString("Ingresa tu movimiento >> "));
+                        } catch (Exception e) {
+                            System.out.println("Movimiento invalido");
+                        }
+                    }
+                    
                     // game.play();   
 
-                    break;
+                    // break;
                 case "4":
                    opcion = 1;
                     break;
@@ -89,7 +99,7 @@ public class Main {
         Scanner input = new Scanner(System.in);
         String retVal = "";
         do {
-            System.out.println(prompt);
+            System.out.print(prompt);
             retVal = input.nextLine();
         } while (retVal.trim().length() == 0);
 

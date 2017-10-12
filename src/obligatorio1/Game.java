@@ -20,20 +20,19 @@ public class Game {
     
     Player player1;
     Player player2;
-    String status; // Whose turn it is
+    // String status; // Whose turn it is
     Token[][] grid;
-    private ArrayList<String> history = new ArrayList<>(); // Store previous moves
+    // private ArrayList<String> history = new ArrayList<>(); // Store previous moves
     
     //Constructor
     public Game(Player player1, Player player2, int size) {
-        this.setPlayer1(player1);
+        this.player1 = player1;
         this.player1.setColor(ANSI_RED);
-        this.setPlayer2(player2);
+        this.player1.toggleTurn();
+        this.player2 = player2;
         this.player2.setColor(ANSI_BLUE);
         this.grid = new Token[size][size];
         this.prepareGrid(player1, player2);
-        this.setStatus("Player 1's Turn");
-        
     }
     
     public void prepareGrid(Player player1, Player player2) {
@@ -43,28 +42,22 @@ public class Game {
         }
     }
     
-    public void setPlayer1(Player p1) {
-        this.player1 = p1;
-    }
-
-    public void setPlayer2(Player p2) {
-        this.player2 = p2;
-    }
-    
-    public void setStatus(String status) {
-        this.status = status;
+    public void inputMove(String input) throws Exception {
+        input = input.replace(" ", "");
+        int curY = charToInt(input.charAt(0));
+        int curX = this.grid.length - Integer.parseInt(String.valueOf(input.charAt(1)));
+        int newY = charToInt(input.charAt(4));
+        int newX = this.grid.length - Integer.parseInt(String.valueOf(input.charAt(5)));
+        
+        moveToken(curX, curY, newX, newY);
     }
     
-    public Player getPlayer1() {
-        return player1;
-    }
-
-    public Player getPlayer2() {
-        return player2;
-    }
-
-    public String getStatus() {
-        return status;
+    public String getTurnStatus() {
+        if (this.player1.isPlaying()) {
+            return "Es turno de " + this.player1.getAlias();
+        } else {
+            return "Es turno de " + this.player2.getAlias();
+        }
     }
  
     /**
@@ -114,10 +107,7 @@ public class Game {
                 // Remove escape characters from retVal and store the clean String in memory
                 // Doing this in order for java not to get confused when calculating the length of the String
                 // Since it counts the color escape chars as regular chars
-                String retValWithoutColor = retVal.replace(ANSI_RESET, "");
-                retValWithoutColor = retValWithoutColor.replace(ANSI_RED, "");
-                retValWithoutColor = retValWithoutColor.replace(ANSI_BLUE, "");
-                retValWithoutColor = retValWithoutColor.replace(ANSI_GREEN, "");
+                String retValWithoutColor = removeColorFromString(retVal);
                 
                 // Subtracts one to the vertical index in order to add the last divider line
                 if ((this.grid.length == 5 && retValWithoutColor.length() < (11 * 11 + 22)) || (this.grid.length == 3 && retValWithoutColor.length() < (7 * 7 + 14))) {
@@ -134,10 +124,98 @@ public class Game {
         return retVal;
     }
     
-    public void moveToken(int curX, int curY, int newX, int newY) {
-        // Validate move
+    private void moveToken(int curX, int curY, int newX, int newY) throws Exception {
         Token aux = this.grid[curX][curY];
-        this.grid[curX][curY] = null;
-        this.grid[newX][newY] = aux;
+        
+        if (isMoveValid(aux, curX, curY, newX, newY)) {
+            aux.setPosition(newX, newY);
+            
+            this.grid[curX][curY] = null;
+            this.grid[newX][newY] = aux;
+            
+            endRound();
+        } else {
+            throw new Exception("Invalid Move Exception");
+        }
+    }
+    
+    private boolean isMoveValid(Token token, int curX, int curY, int newX, int newY) {
+        boolean retVal;
+        boolean isMoveDiagonal = curX != newX && curY != newY;
+        
+        if (removeColorFromString(token.toString()).equals("T")) {
+            // Make sure move is either vertical or horizontal and that the token didnt go over any other token
+            retVal = (!isMoveDiagonal && checkLine(curX, curY, newX, newY));
+        } else {
+            // Make sure move is diagonal and that the token didnt go over any other token
+            retVal = (isMoveDiagonal && checkDiagonal(curX, curY, newX, newY));
+        }
+        
+        // If the move is valid and the token that is being moved belongs to the player that is playing return true
+        return (retVal && token.getOwner().isPlaying());
+    }
+    
+    private boolean checkLine(int curX, int curY, int newX, int newY) {
+        boolean lineIsEmpty = true;
+        boolean horizontal = curX == newX;
+        
+        int curPos = curX == newX ? curY : curX;
+        int newPos = curX == newX ? newY : newX;
+        
+        if (curPos > newPos) {
+            int aux = newPos;
+            newPos = curPos;
+            curPos = aux;
+        }
+        
+        for (int i = curPos + 1; i < newPos && lineIsEmpty; i++) {
+            if (horizontal) {
+                lineIsEmpty = lineIsEmpty ? this.grid[curX][i] == null : lineIsEmpty;
+            } else {
+                lineIsEmpty = lineIsEmpty ? this.grid[i][curY] == null : lineIsEmpty;
+            }
+        }
+        
+        return lineIsEmpty;
+    }
+    
+    private boolean checkDiagonal(int curX, int curY, int newX, int newY) {
+        boolean diagonalIsEmpty = true;
+        
+        if (curX > newX) {
+            int aux = newX;
+            newX = curX;
+            curX = aux;
+        }
+        
+        if (curY > newY) {
+            int aux = newY;
+            newY = curY;
+            curY = aux;
+        }
+        
+        for (int i = curX, j = curY; i < newX && j < newY && diagonalIsEmpty; i++, j++) {
+            diagonalIsEmpty = diagonalIsEmpty ? this.grid[i][j] == null : diagonalIsEmpty;
+        }
+        
+        return diagonalIsEmpty;
+    }
+    
+    private void endRound() {
+        this.player1.toggleTurn();
+        this.player2.toggleTurn();
+    }
+    
+    private int charToInt(char c) {
+        return ((int) c) - 65;
+    }
+    
+    private String removeColorFromString(String text) {
+        String retVal = text.replace(ANSI_RESET, "");
+        retVal = retVal.replace(ANSI_RED, "");
+        retVal = retVal.replace(ANSI_BLUE, "");
+        retVal = retVal.replace(ANSI_GREEN, "");
+        
+        return retVal;
     }
 }

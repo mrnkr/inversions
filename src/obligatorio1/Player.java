@@ -16,17 +16,8 @@ public class Player {
     private int gamesPlayed;
     private String color;
     private int wins;
+    private boolean isTurn;
    
-
-    //Constructores
-    public Player() {
-        this.setName("Sin nombre");
-        this.setAlias("none");
-        this.setColor("Sin color");
-        gamesPlayed = 0;
-        wins = 0;
-        
-    }
 
     public Player(String name, String alias) {
         this.setName(name);
@@ -48,6 +39,10 @@ public class Player {
         this.color = color;
     }
     
+    public void toggleTurn() {
+        this.isTurn = !this.isTurn;
+    }
+    
     //Métodos Get
     public String getName() {
         return name;
@@ -67,6 +62,10 @@ public class Player {
     
     public String getColor() {
         return color;
+    }
+    
+    public boolean isPlaying() {
+        return isTurn;
     }
 
     
