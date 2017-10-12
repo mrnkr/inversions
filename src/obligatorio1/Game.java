@@ -24,7 +24,6 @@ public class Game {
     private boolean finished;
     // private ArrayList<String> history = new ArrayList<>(); // Store previous moves
     
-    //Constructor
     public Game(Player player1, Player player2, int size) {
         this.player1 = player1;
         this.player1.setColor(ANSI_RED);
@@ -35,6 +34,11 @@ public class Game {
         this.prepareGrid(player1, player2);
     }
     
+    /**
+     * Populate the grid with the tokens
+     * @param player1 - Player 1
+     * @param player2 - Player 2
+     */
     public void prepareGrid(Player player1, Player player2) {
         for (int i = 0; i < this.grid.length; i++) {
             this.grid[0][i] = new Token(player1, 0, i);
@@ -42,6 +46,11 @@ public class Game {
         }
     }
     
+    /**
+     * Takes the String coordinates of the tokens to move and makes the corresponding move if valid
+     * @param input - The user inputted move
+     * @throws Exception - The move is invalid
+     */
     public void inputMove(String input) throws Exception {
         input = input.replace(" ", "");
         int curY = charToInt(input.charAt(0));
@@ -52,6 +61,10 @@ public class Game {
         moveToken(curX, curY, newX, newY);
     }
     
+    /**
+     * Makes the player whose turn is ongoing to forfeit the game
+     * Remember to ask if opponent accepts before use
+     */
     public void surrender() {
         if (this.player1.isPlaying()) {
             this.player2.addWin();
@@ -62,6 +75,10 @@ public class Game {
         this.finished = true;
     }
     
+    /**
+     * Generates a String with information on whose turn it is
+     * @return - Human readable turn information
+     */
     public String getTurnStatus() {
         if (this.player1.isPlaying()) {
             return "Es turno de " + this.player1.getColor() + this.player1.getAlias() + ANSI_RESET;
@@ -70,6 +87,10 @@ public class Game {
         }
     }
     
+    /**
+     * Returns whether the game is ongoing
+     * @return - If the game is still on
+     */
     public boolean isPlaying() {
         return !this.finished;
     }
@@ -138,6 +159,14 @@ public class Game {
         return retVal;
     }
     
+    /**
+     * Checks if a move is valid and commits it to the grid
+     * @param curX - Current X axis position of the token to move
+     * @param curY - Current Y axis position of the token to move
+     * @param newX - New X axis position of the token to move
+     * @param newY - New Y axis position of the token to move
+     * @throws Exception - If the move is invalid or the any position passed is invalid
+     */
     private void moveToken(int curX, int curY, int newX, int newY) throws Exception {
         Token aux = this.grid[curX][curY];
         
@@ -153,6 +182,15 @@ public class Game {
         }
     }
     
+    /**
+     * Validates a move
+     * @param token - The token to move
+     * @param curX - Current X axis position of the token to move
+     * @param curY - Current Y axis position of the token to move
+     * @param newX - New X axis position of the token to move
+     * @param newY - New Y axis position of the token to move
+     * @return - If the move is valid
+     */
     private boolean isMoveValid(Token token, int curX, int curY, int newX, int newY) {
         boolean retVal;
         boolean isMoveDiagonal = curX != newX && curY != newY;
@@ -169,6 +207,14 @@ public class Game {
         return (retVal && token.getOwner().isPlaying());
     }
     
+    /**
+     * Verifies a token does not go over others as it moves though a horizontal or vertical line
+     * @param curX - Current X axis position of the token to move
+     * @param curY - Current Y axis position of the token to move
+     * @param newX - New X axis position of the token to move
+     * @param newY - New Y axis position of the token to move
+     * @return - The line to go over is clean
+     */
     private boolean checkLine(int curX, int curY, int newX, int newY) {
         boolean lineIsEmpty = true;
         boolean horizontal = curX == newX;
@@ -193,6 +239,14 @@ public class Game {
         return lineIsEmpty;
     }
     
+    /**
+     * Verifies a token does not go over others as it moves through a diagonal line
+     * @param curX - Current X axis position of the token to move
+     * @param curY - Current Y axis position of the token to move
+     * @param newX - New X axis position of the token to move
+     * @param newY - New Y axis position of the token to move
+     * @return - The line to go over is clean
+     */
     private boolean checkDiagonal(int curX, int curY, int newX, int newY) {
         boolean diagonalIsEmpty = true;
         
@@ -209,21 +263,37 @@ public class Game {
         }
         
         for (int i = curX, j = curY; i < newX && j < newY && diagonalIsEmpty; i++, j++) {
-            diagonalIsEmpty = diagonalIsEmpty ? this.grid[i][j] == null : diagonalIsEmpty;
+            // Added this if clause to fix problems with moves to the bottom right
+            if (!this.grid[i][j].equals(this.grid[curX][curY])) {
+                diagonalIsEmpty = diagonalIsEmpty ? this.grid[i][j] == null : diagonalIsEmpty;
+            }
         }
         
         return diagonalIsEmpty;
     }
     
+    /**
+     * Finishes a player's turn and starts the other's
+     */
     private void endRound() {
         this.player1.toggleTurn();
         this.player2.toggleTurn();
     }
     
+    /**
+     * Transforms the part of the coordinates input as char into a workable int
+     * @param c - the letter coordinate
+     * @return - The index to use in the array
+     */
     private int charToInt(char c) {
         return ((int) c) - 65;
     }
     
+    /**
+     * Removes the color escape characters from a String
+     * @param text - The text to remove the escape chars from
+     * @return - The clean String
+     */
     private String removeColorFromString(String text) {
         String retVal = text.replace(ANSI_RESET, "");
         retVal = retVal.replace(ANSI_RED, "");

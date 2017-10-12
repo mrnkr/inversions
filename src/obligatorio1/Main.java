@@ -22,9 +22,10 @@ public class Main {
       MySystem system = new MySystem();
       int opcion = 0;
       while (opcion == 0){
-        switch (inputString("\n1- Crear Usuario\n2- Estadisticas de usuario"
-                      + "\n3- Jogar"
-                      + "\n4- Salir")) {
+        switch (inputString("\n\n1- Crear Usuario"
+                      + "\n2- Estadisticas de usuario"
+                      + "\n3- Jugar"
+                      + "\n4- Salir\n\n")) {
             case "1":
                 createPlayer(system);
                 break;
@@ -41,9 +42,8 @@ public class Main {
 
                 Game game = new Game(j1,j2,inputInt("Seleccione el tamano de tablero (3 o 5) >> ", 3, 5));
 
-                System.out.println("\n\n");
-
                 while (game.isPlaying()) {
+                    System.out.println("\n\n");
                     System.out.println(game.getPrintableGrid());
                     System.out.println(game.getTurnStatus());
 
