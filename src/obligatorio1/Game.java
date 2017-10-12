@@ -13,15 +13,15 @@ import java.util.ArrayList;
  * @author - Álvaro Nicoli - Programación 2 - Número de estudiante: 220159 - Universidad ORT
  */
 public class Game {
-    public static final String ANSI_RESET = "\u001B[0m";
-    public static final String ANSI_RED = "\u001B[31m";
-    public static final String ANSI_GREEN = "\u001B[32m";
-    public static final String ANSI_BLUE = "\u001B[34m";
+    private static final String ANSI_RESET = "\u001B[0m";
+    private static final String ANSI_RED = "\u001B[31m";
+    private static final String ANSI_GREEN = "\u001B[32m";
+    private static final String ANSI_BLUE = "\u001B[34m";
     
-    Player player1;
-    Player player2;
-    // String status; // Whose turn it is
-    Token[][] grid;
+    private Player player1;
+    private Player player2;
+    private Token[][] grid;
+    private boolean finished;
     // private ArrayList<String> history = new ArrayList<>(); // Store previous moves
     
     //Constructor
@@ -52,12 +52,26 @@ public class Game {
         moveToken(curX, curY, newX, newY);
     }
     
+    public void surrender() {
+        if (this.player1.isPlaying()) {
+            this.player2.addWin();
+        } else {
+            this.player1.addWin();
+        }
+        
+        this.finished = true;
+    }
+    
     public String getTurnStatus() {
         if (this.player1.isPlaying()) {
-            return "Es turno de " + this.player1.getAlias();
+            return "Es turno de " + this.player1.getColor() + this.player1.getAlias() + ANSI_RESET;
         } else {
-            return "Es turno de " + this.player2.getAlias();
+            return "Es turno de " + this.player2.getColor() + this.player2.getAlias() + ANSI_RESET;
         }
+    }
+    
+    public boolean isPlaying() {
+        return !this.finished;
     }
  
     /**

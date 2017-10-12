@@ -22,49 +22,60 @@ public class Main {
       MySystem system = new MySystem();
       int opcion = 0;
       while (opcion == 0){
-      switch (inputString("\n1- Crear Usuario\n2- Estadisticas de usuario"
-                    + "\n3- Jogar"
-                    + "\n4- Salir")) {
-                case "1":
-                    createPlayer(system);
-                    break;
-                case "2":
-                    // estadisticas(selectPlayer(sistema));
-                    break;
-                case "3":
-                    System.out.println("Seleccione el jugador 1");
-                    // Player j1 = selectPlayer(system);
-                    Player j1 = new Player("Joselito", "joselito_patata22");
-                    System.out.println("Seleccione el jugador 2");
-                    Player j2 = new Player("Nadia", "nadia_love24");
-                    // Player j2 = selectPlayer(system);
-                    
-                    Game game = new Game(j1,j2,inputInt("Seleccione el tamano de tablero (3 o 5) >> ", 3, 5));
-                    
-                    System.out.println("\n\n");
-                    
-                    while (0 == 0) {
-                        System.out.println(game.getPrintableGrid());
-                        System.out.println(game.getTurnStatus());
+        switch (inputString("\n1- Crear Usuario\n2- Estadisticas de usuario"
+                      + "\n3- Jogar"
+                      + "\n4- Salir")) {
+            case "1":
+                createPlayer(system);
+                break;
+            case "2":
+                // estadisticas(selectPlayer(sistema));
+                break;
+            case "3":
+                System.out.println("Seleccione el jugador 1");
+                // Player j1 = selectPlayer(system);
+                Player j1 = new Player("Joselito", "joselito_patata22");
+                System.out.println("Seleccione el jugador 2");
+                Player j2 = new Player("Nadia", "nadia_love24");
+                // Player j2 = selectPlayer(system);
+
+                Game game = new Game(j1,j2,inputInt("Seleccione el tamano de tablero (3 o 5) >> ", 3, 5));
+
+                System.out.println("\n\n");
+
+                while (game.isPlaying()) {
+                    System.out.println(game.getPrintableGrid());
+                    System.out.println(game.getTurnStatus());
+
+                    String move = inputString("Ingresa tu movimiento >> ");
+
+                    if (move.equalsIgnoreCase("X")) {
+                        String confirm = inputString("Acepta el oponente la rendicion? (y/n) >> ");
+
+                        if (confirm.equalsIgnoreCase("y")) {
+                            game.surrender();
+                        }
+                    } else {
                         try {
-                            game.inputMove(inputString("Ingresa tu movimiento >> "));
+                            game.inputMove(move);
                         } catch (Exception e) {
                             System.out.println("Movimiento invalido");
                         }
                     }
-                    
-                    // game.play();   
+                }
 
-                    // break;
-                case "4":
-                   opcion = 1;
-                    break;
-                
-                default:
-                    System.out.println("Ingrese algo correcto");
-                    break;
+                // game.play();
 
-      }
+                break;
+            case "4":
+               opcion = 1;
+                break;
+
+            default:
+                System.out.println("Ingrese algo correcto");
+                break;
+
+        }
       }
     }
     

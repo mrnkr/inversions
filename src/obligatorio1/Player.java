@@ -43,6 +43,10 @@ public class Player {
         this.isTurn = !this.isTurn;
     }
     
+    public void addWin() {
+        this.wins++;
+    }
+    
     //Métodos Get
     public String getName() {
         return name;
