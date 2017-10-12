@@ -12,14 +12,13 @@ package obligatorio1;
  */
 public class Token {
     Player owner;
-    boolean type = true; // true = Tower - false = Bishop
+    boolean type = false; // true = Tower - false = Bishop
     int x;
     int y;
       
     public Token(Player player, int x, int y) {
         this.setOwner(player);
-        this.x = x;
-        this.y = y;
+        this.setPosition(x, y);
     }
     
     //Métodos Set
@@ -27,8 +26,10 @@ public class Token {
         owner = player;
     }
     
-    public void setType(boolean type) {
-        this.type = type;
+    public void setPosition(int x, int y) {
+        this.x = x;
+        this.y = y;
+        this.type = !this.type;
     }
 
     
@@ -39,6 +40,6 @@ public class Token {
 
     @Override
     public String toString() {
-        return type ? "T" : "A";
+        return this.owner.getColor() + (type ? "T" : "A");
     }
 }

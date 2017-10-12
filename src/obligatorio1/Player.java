@@ -65,7 +65,7 @@ public class Player {
         return wins;
     }
     
-    public String GetColor() {
+    public String getColor() {
         return color;
     }
 

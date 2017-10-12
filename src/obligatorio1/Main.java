@@ -39,7 +39,9 @@ public class Main {
                     Player j2 = new Player();
                     // Player j2 = selectPlayer(system);
                     
-                    Game game = new Game(j1,j2,inputInt("Seleccione el tamano de tablero (3 o 5) >>", 3, 5));
+                    Game game = new Game(j1,j2,inputInt("Seleccione el tamano de tablero (3 o 5) >> ", 3, 5));
+                    System.out.println(game.getPrintableGrid());
+                    game.moveToken(0, 2, 1, 2);
                     System.out.println(game.getPrintableGrid());
                     // game.play();   
 
@@ -100,7 +102,7 @@ public class Main {
         int retVal = min - 1;
         do {
 
-            System.out.println(prompt);
+            System.out.print(prompt);
             //Try catch que controla excepciones
             try {
                 retVal = input.nextInt();

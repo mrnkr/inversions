@@ -13,6 +13,11 @@ import java.util.ArrayList;
  * @author - Álvaro Nicoli - Programación 2 - Número de estudiante: 220159 - Universidad ORT
  */
 public class Game {
+    public static final String ANSI_RESET = "\u001B[0m";
+    public static final String ANSI_RED = "\u001B[31m";
+    public static final String ANSI_GREEN = "\u001B[32m";
+    public static final String ANSI_BLUE = "\u001B[34m";
+    
     Player player1;
     Player player2;
     String status; // Whose turn it is
@@ -22,7 +27,9 @@ public class Game {
     //Constructor
     public Game(Player player1, Player player2, int size) {
         this.setPlayer1(player1);
+        this.player1.setColor(ANSI_RED);
         this.setPlayer2(player2);
+        this.player2.setColor(ANSI_BLUE);
         this.grid = new Token[size][size];
         this.prepareGrid(player1, player2);
         this.setStatus("Player 1's Turn");
@@ -60,19 +67,77 @@ public class Game {
         return status;
     }
  
+    /**
+     * Generates a String object to present the grid to the user by means of the terminal
+     * @return - The beautiful grid
+     */
     public String getPrintableGrid() {
-        String retVal = "";
+        String retVal = ""; // Value to be returned
+        boolean addingElements = false; // Whether the row being added to retVal contains Tokens or only divider characters
         
         for (int i = 0; i < this.grid.length; i++) {
+            // Determines whether the row being added contains part of a goal
+            // If i == 4 the behavior will always be the same, if i == 0 or 1 the behavior is the same in case of the divider
+            boolean hasGoal = i == 0 || (i == 1 && !addingElements) || i == this.grid.length - 1;
+            
             for (int j = 0; j < this.grid[i].length; j++) {
-                if ((i == 0 || i == this.grid.length - 1) && j == (this.grid.length - 1) / 2) {
-                    retVal += "***\n*" + (this.grid[i][j] != null ? this.grid[i][j] : " ") + "*\n***";
+                // Determines whether the horizontal position corresponds to that of the goal
+                boolean isGoal = hasGoal && j >= (this.grid[i].length / 2) && j < ((this.grid[i].length / 2) + 2);
+                
+                if (addingElements) {
+                    if (j == 0) {
+                        retVal += this.grid.length - i + " ";
+                    }
+                    
+                    retVal += (isGoal ? (ANSI_GREEN + "*" + ANSI_RESET) : "|") + (this.grid[i][j] != null ? (this.grid[i][j] + ANSI_RESET) : " ");
                 } else {
-                    retVal += "+-+\n|" + (this.grid[i][j] != null ? this.grid[i][j] : " ") + "|\n+-+";
+                    if (j == 0) {
+                        retVal += "  ";
+                    }
+                    
+                    retVal += isGoal ? ((j == (this.grid[i].length / 2) + 1) ? (ANSI_GREEN + "*" + ANSI_RESET + "-") : (ANSI_GREEN + "**" + ANSI_RESET)) : "+-";
                 }
             }
+            
+            if (addingElements) {
+                // Finishes a line with Tokens
+                retVal += "|\n";
+                
+                // Subtracts one to the vertical index in order to add elements correctly
+                if (i == this.grid.length - 1) {
+                    i--;
+                }
+            } else {
+                // Finishes a divider line
+                retVal += "+\n";
+                
+                // Remove escape characters from retVal and store the clean String in memory
+                // Doing this in order for java not to get confused when calculating the length of the String
+                // Since it counts the color escape chars as regular chars
+                String retValWithoutColor = retVal.replace(ANSI_RESET, "");
+                retValWithoutColor = retValWithoutColor.replace(ANSI_RED, "");
+                retValWithoutColor = retValWithoutColor.replace(ANSI_BLUE, "");
+                retValWithoutColor = retValWithoutColor.replace(ANSI_GREEN, "");
+                
+                // Subtracts one to the vertical index in order to add the last divider line
+                if ((this.grid.length == 5 && retValWithoutColor.length() < (11 * 11 + 22)) || (this.grid.length == 3 && retValWithoutColor.length() < (7 * 7 + 14))) {
+                    i--;
+                }
+            }
+            
+            // Change addingElements to its opposite value
+            addingElements = !addingElements;
         }
         
+        retVal += this.grid.length == 5 ? "   A B C D E\n" : "   A B C\n";
+        
         return retVal;
+    }
+    
+    public void moveToken(int curX, int curY, int newX, int newY) {
+        // Validate move
+        Token aux = this.grid[curX][curY];
+        this.grid[curX][curY] = null;
+        this.grid[newX][newY] = aux;
     }
 }
