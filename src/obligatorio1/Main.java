@@ -20,36 +20,76 @@ public class Main {
     public static void main(String[] args) {
       System.out.println("Bienvenido. Baila como el Papu");
       MySystem system = new MySystem();
-      int option = 0;
-      while (option == 0){
-      switch (inputString("\n1- Crear Usuario\n2- Estadisticas de usuario"
-                    + "\n3- Jogar"
-                    + "\n4- Salir")) {
-                case "1":
-                    createPlayer(system);
-                    break;
-                case "2":
-                    // estadisticas(selectPlayer(sistema));
-                    break;
-                case "3":
-                    System.out.println("Seleccione el jugador 1");
-                    Player j1 = selectPlayer(system);
-                    System.out.println("Seleccione el jugador 2");
-                    Player j2 = selectPlayer(system);
+      int opcion = 0;
+      while (opcion == 0){
+        switch (inputString("\n\n1- Crear Usuario"
+                      + "\n2- Estadisticas de usuario"
+                      + "\n3- Jugar"
+                      + "\n4- Salir\n\n")) {
+            case "1":
+                createPlayer(system);
+                break;
+            case "2":
+                // estadisticas(selectPlayer(sistema));
+                break;
+            case "3":
+                System.out.println("Seleccione el jugador 1");
+                // Player j1 = selectPlayer(system);
+                Player j1 = new Player("Joselito", "joselito_patata22");
+                System.out.println("Seleccione el jugador 2");
+                Player j2 = new Player("Nadia", "nadia_love24");
+                // Player j2 = selectPlayer(system);
+
+                Game game = new Game(j1,j2,inputInt("Seleccione el tamano de tablero (3 o 5) >> ", 3, 5));
+
+                while (game.isPlaying()) {
+                    System.out.println("\n\n");
+                    System.out.println(game.getPrintableGrid());
+                    System.out.println(game.getTurnStatus());
                     
-                    Game game = new Game(j1,j2,inputInt("Seleccione el tipo de juego (3 a 5)", 3, 5));
-                    // game.play();   
+                    /*if(game.hasMoves().equals("")){
+                       System.out.println("No hay movimientos disponibles");
+                       break;
+                    }
+                    */
+                    String move = inputString("Ingresa tu movimiento >> ");
 
-                    break;
-                case "4":
-                   option = 1;
-                    break;
-                
-                default:
-                    System.out.println("Ingrese algo correcto");
-                    break;
+                    if (move.equalsIgnoreCase("X")) {
+                        String confirm = inputString("Acepta el oponente la rendicion? (y/n) >> ");
 
-      }
+                        if (confirm.equalsIgnoreCase("y")) {
+                            game.endGame();
+                        }
+                    } else {
+                        
+                    /*    if (move.equalsIgnoreCase("E")) {
+                        String confirm = inputString("Acepta la oferta de empate? (y/n) >> ");
+
+                        if (confirm.equalsIgnoreCase("y")) {
+                            game.draw();
+                        }
+                        */
+                        try {
+                            game.inputMove(move);
+                        } catch (Exception e) {
+                            System.out.println("Movimiento invalido");
+                        }
+                    }
+                    game.getHistory().add(move);
+                }
+
+                // game.play();
+
+                break;
+            case "4":
+               opcion = 1;
+                break;
+
+            default:
+                System.out.println("Ingrese algo correcto");
+                break;
+
+        }
       }
     }
     
@@ -84,7 +124,7 @@ public class Main {
         Scanner input = new Scanner(System.in);
         String retVal = "";
         do {
-            System.out.println(prompt);
+            System.out.print(prompt);
             retVal = input.nextLine();
         } while (retVal.trim().length() == 0);
 
@@ -97,7 +137,7 @@ public class Main {
         int retVal = min - 1;
         do {
 
-            System.out.println(prompt);
+            System.out.print(prompt);
             //Try catch que controla excepciones
             try {
                 retVal = input.nextInt();

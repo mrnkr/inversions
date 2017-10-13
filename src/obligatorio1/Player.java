@@ -14,28 +14,18 @@ public class Player {
     private String name;
     private String alias;
     private int gamesPlayed;
-    private int age;
     private String color;
     private int wins;
+    private int draws;
+    private boolean isTurn;
    
 
-    //Constructores
-    public Player() {
-        this.setName("Sin nombre");
-        this.setAlias("none");
-        this.setColor("Sin color");
-        this.setAge("18");
-        gamesPlayed = 0;
-        wins = 0;
-        
-    }
-
-    public Player(String name, String alias, int age) {
+    public Player(String name, String alias) {
         this.setName(name);
         this.setAlias(alias);
-        this.setAge(age);
         gamesPlayed = 0;
         wins = 0;
+        draws = 0;
     }
 
     //Métodos Set
@@ -47,12 +37,22 @@ public class Player {
         this.alias = alias;
     }
     
-     public void setAge(int age) {
-        this.age = age;
-    }
-    
     public void setColor(String color) {
         this.color = color;
+    }
+    
+    public void toggleTurn() {
+        this.isTurn = !this.isTurn;
+    }
+    
+    public void addWin() {
+        this.wins++;
+        this.gamesPlayed++;
+    }
+    
+    public void addDraw() {
+        this.draws++;
+        this.gamesPlayed++;
     }
     
     //Métodos Get
@@ -67,17 +67,17 @@ public class Player {
     public int getGamesPlayed() {
         return gamesPlayed;
     }
-    
-    public int getAge() {
-        return age;
-    }
-    
+
     public int getWins() {
         return wins;
     }
     
-    public String GetColor() {
+    public String getColor() {
         return color;
+    }
+    
+    public boolean isPlaying() {
+        return isTurn;
     }
 
     
@@ -90,7 +90,7 @@ public class Player {
                 
     }
     
-    //Redefinir equals.  Un árticulo es igual a otro si tienen el mismo código
+    //Redefinir equals.  Un jugador es igual a otro si tiene el mismo alias.
     @Override
     public boolean equals(Object o) {
         boolean retVal;

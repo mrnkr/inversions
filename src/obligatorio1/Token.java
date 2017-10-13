@@ -11,15 +11,14 @@ package obligatorio1;
  * @author - Álvaro Nicoli - Programación 2 - Número de estudiante: 220159 - Universidad ORT
  */
 public class Token {
-    Player owner;
-    boolean type; // true = Tower - false = Bishop
-    int x;
-    int y;
+    private Player owner;
+    private boolean type = false; // true = Tower - false = Bishop
+    private int x;
+    private int y;
       
     public Token(Player player, int x, int y) {
         this.setOwner(player);
-        this.x = x;
-        this.y = y;
+        this.setPosition(x, y);
     }
     
     //Métodos Set
@@ -27,8 +26,10 @@ public class Token {
         owner = player;
     }
     
-    public void setType(boolean type) {
-        this.type = type;
+    public void setPosition(int x, int y) {
+        this.x = x;
+        this.y = y;
+        this.type = !this.type;
     }
 
     
@@ -36,9 +37,15 @@ public class Token {
     public Player getOwner() {
         return owner;
     }
+    
+     public boolean getType() {
+        return type;
+    }
+    
+    
 
     @Override
     public String toString() {
-        return type ? "T" : "A";
+        return this.owner.getColor() + (type ? "T" : "A");
     }
 }
