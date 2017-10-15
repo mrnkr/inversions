@@ -306,6 +306,8 @@ public class Game {
      * Finishes a player's turn and starts the other's
      */
     private void endRound() {
+        if (checkCheck())
+            endGame();
         this.player1.toggleTurn();
         this.player2.toggleTurn();
     }
@@ -337,25 +339,29 @@ public class Game {
      * Check if the player who is moving is in check status.
      * @return - The boolean with the answer
      */
-    private boolean checkCheck() {
+    public boolean checkCheck() {
         boolean retVal = false;
         if(this.player1.isPlaying()){
             if (grid.length == 5){
+                  if(grid [0][2] != null)
                if (grid [0][2].getOwner().equals(player2)){
                 retVal = true;
                }
             }else{
+                  if(grid [0][1] != null)
                if (grid [0][1].getOwner().equals(player2))
                    retVal = true; 
             }
         }else{
            if(this.player2.isPlaying()){
             if (grid.length == 5){
-               if (grid [4][2].getOwner().equals(player2)){
+                  if(grid [4][2] != null)
+               if (grid [4][2].getOwner().equals(player1)){
                 retVal = true;
                }
             }else{
-               if (grid [2][1].getOwner().equals(player2))
+                if(grid [2][1] != null)
+               if (grid [2][1].getOwner().equals(player1))
                    retVal = true; 
             }
            }
@@ -378,19 +384,31 @@ public class Game {
      
       public String hasMoves(){
          String retVal = "";
-         if (player1.isPlaying()){
+         Player playing;
+        
+        if (player1.isPlaying()){
+          playing = player1;
+      }else{
+            playing = player2;
+        }
+        
                for (int i=0; i<this.grid.length; i++){
            
          
-          for (int j=0; j<this.grid[i].length; j++){
-          
-           if(this.grid[i][j].getOwner().equals(player1)){
-                  for (int m=0; i<this.grid.length; i++){
+          for (int j=0; j<this.grid.length; j++){
+        if(this.grid[i][j]!=null)
+           if(this.grid[i][j].getOwner().equals(playing)){
+                  for (int m=0; m<this.grid.length; m++){
            
          
-          for (int n=0; j<this.grid[i].length; j++){
+          for (int n=0; n<this.grid[m].length; n++){
                if(this.isMoveValid(this.grid[i][j], i, j, m, n)){
-                    retVal += String.valueOf(i) + String.valueOf(j) + "-" + String.valueOf(m) + String.valueOf(n);
+                   
+                    int val1 = j+65;
+                    int val2 = n+65;
+                    char a = (char) val1;
+                    char b = (char) val2;
+                    retVal += a + String.valueOf(i+1) + "-" + b + String.valueOf(m+1) + "\n";
                 }
               
           }
@@ -399,7 +417,7 @@ public class Game {
           }
          
                }
-         }
+         
           return retVal;
       }
     }

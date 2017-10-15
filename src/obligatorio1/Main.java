@@ -47,30 +47,39 @@ public class Main {
                     System.out.println(game.getPrintableGrid());
                     System.out.println(game.getTurnStatus());
                     
-                    /*if(game.hasMoves().equals("")){
+                    if(game.hasMoves().equals("")){
                        System.out.println("No hay movimientos disponibles");
                        break;
                     }
-                    */
+                    if(game.checkCheck()){
+                        System.out.println("Estas en jaque");
+                    }
+                    
                     String move = inputString("Ingresa tu movimiento >> ");
 
+                         if (move.equalsIgnoreCase("H")) {
+                        System.out.println("La lista de movimientos es:" + game.hasMoves());
+
+                        }
+                        if (move.equalsIgnoreCase("E")) {
+                        String confirm = inputString("Acepta la oferta de empate? (y/n) >> ");
+
+                        if (confirm.equalsIgnoreCase("y")) {
+                            game.draw();
+                        }
+                        }
                     if (move.equalsIgnoreCase("X")) {
                         String confirm = inputString("Acepta el oponente la rendicion? (y/n) >> ");
 
                         if (confirm.equalsIgnoreCase("y")) {
                             game.endGame();
                         }
-                    } else {
+                    } else  {
                         
-                    /*    if (move.equalsIgnoreCase("E")) {
-                        String confirm = inputString("Acepta la oferta de empate? (y/n) >> ");
-
-                        if (confirm.equalsIgnoreCase("y")) {
-                            game.draw();
-                        }
-                        */
+                  
                         try {
                             game.inputMove(move);
+                            
                         } catch (Exception e) {
                             System.out.println("Movimiento invalido");
                         }
