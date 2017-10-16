@@ -13,10 +13,10 @@ import java.util.ArrayList;
  * @author - Álvaro Nicoli - Programación 2 - Número de estudiante: 220159 - Universidad ORT
  */
 public class Game {
-    private static final String ANSI_RESET = "\u001B[0m";
-    private static final String ANSI_RED = "\u001B[31m";
-    private static final String ANSI_GREEN = "\u001B[32m";
-    private static final String ANSI_BLUE = "\u001B[34m";
+    public static final String ANSI_RESET = "\u001B[0m";
+    public static final String ANSI_RED = "\u001B[31m";
+    public static final String ANSI_GREEN = "\u001B[32m";
+    public static final String ANSI_BLUE = "\u001B[34m";
     
     private Player player1;
     private Player player2;
@@ -65,16 +65,9 @@ public class Game {
         this.history.add(historyInput); // This line will only be reached if the move is valid, else an exception will have been thrown
     }
     
-    /*public boolean shouldGameEnd() {
-        boolean retVal = false;
-        
-        if (this.player1.isPlaying()) {
-            
-        }
-    }*/
-    
     /**
      * Changes the game status to finished and ends the ongoing turn
+     * @param winner - The player who should be given the game
      */
     public void endGame(Player winner) {
         // End the turn of whoever is playing
@@ -132,6 +125,10 @@ public class Game {
         return !this.finished;
     }
     
+    /**
+     * Determines if the game has been won by someone
+     * @return - The winner
+     */
     public Player hasWinner() {
         Player retVal = checkCheck();
         
@@ -155,6 +152,7 @@ public class Game {
             }
         }
         
+        // Makes sure the player who is losing has a chance to deffend themselves before losing
         if (!canEnd) {
             if (retVal != null) {
                 retVal = null;
@@ -269,33 +267,39 @@ public class Game {
  
     /**
      * Generates a String object to present the grid to the user by means of the terminal
+     * @param rotate - If the grid should be rotated
      * @return - The beautiful grid
      */
-    public String getPrintableGrid() {
+    public String getPrintableGrid(boolean rotate) {
         String retVal = ""; // Value to be returned
+        Token [][] grid = rotate ? rotateGrid() : this.grid;
         boolean addingElements = false; // Whether the row being added to retVal contains Tokens or only divider characters
         
-        for (int i = 0; i < this.grid.length; i++) {
+        for (int i = 0; i < grid.length; i++) {
             // Determines whether the row being added contains part of a goal
             // If i == 4 the behavior will always be the same, if i == 0 or 1 the behavior is the same in case of the divider
-            boolean hasGoal = i == 0 || (i == 1 && !addingElements) || i == this.grid.length - 1;
+            boolean hasGoal = i == 0 || (i == 1 && !addingElements) || i == grid.length - 1;
             
-            for (int j = 0; j < this.grid[i].length; j++) {
+            for (int j = 0; j < grid[i].length; j++) {
                 // Determines whether the horizontal position corresponds to that of the goal
-                boolean isGoal = hasGoal && j >= (this.grid[i].length / 2) && j < ((this.grid[i].length / 2) + 2);
+                boolean isGoal = hasGoal && j >= (grid[i].length / 2) && j < ((grid[i].length / 2) + 2);
                 
                 if (addingElements) {
                     if (j == 0) {
-                        retVal += this.grid.length - i + " ";
+                        if (rotate) {
+                            retVal += i + 1 + " ";
+                        } else {
+                            retVal += grid.length - i + " ";
+                        }
                     }
                     
-                    retVal += (isGoal ? (ANSI_GREEN + "*" + ANSI_RESET) : "|") + (this.grid[i][j] != null ? (this.grid[i][j] + ANSI_RESET) : " ");
+                    retVal += (isGoal ? (ANSI_GREEN + "*" + ANSI_RESET) : "|") + (grid[i][j] != null ? (grid[i][j] + ANSI_RESET) : " ");
                 } else {
                     if (j == 0) {
                         retVal += "  ";
                     }
                     
-                    retVal += isGoal ? ((j == (this.grid[i].length / 2) + 1) ? (ANSI_GREEN + "*" + ANSI_RESET + "-") : (ANSI_GREEN + "**" + ANSI_RESET)) : "+-";
+                    retVal += isGoal ? ((j == (grid[i].length / 2) + 1) ? (ANSI_GREEN + "*" + ANSI_RESET + "-") : (ANSI_GREEN + "**" + ANSI_RESET)) : "+-";
                 }
             }
             
@@ -304,7 +308,7 @@ public class Game {
                 retVal += "|\n";
                 
                 // Subtracts one to the vertical index in order to add elements correctly
-                if (i == this.grid.length - 1) {
+                if (i == grid.length - 1) {
                     i--;
                 }
             } else {
@@ -326,7 +330,23 @@ public class Game {
             addingElements = !addingElements;
         }
         
-        retVal += this.grid.length == 5 ? "   A B C D E\n" : "   A B C\n";
+        if (rotate) {
+            retVal += grid.length == 5 ? "   E D C B A\n" : "   C B A\n";
+        } else {
+            retVal += grid.length == 5 ? "   A B C D E\n" : "   A B C\n";
+        }
+        
+        return retVal;
+    }
+    
+    public Token[][] rotateGrid() {
+        Token[][] retVal = new Token[this.grid.length][this.grid.length];
+        
+        for (int i = 0; i < this.grid.length; i++) {
+            for (int j = 0; j < this.grid[i].length; j++) {
+                retVal[this.grid.length - i - 1][this.grid[i].length - j - 1] = this.grid[i][j];
+            }
+        }
         
         return retVal;
     }

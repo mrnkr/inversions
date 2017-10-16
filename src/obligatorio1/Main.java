@@ -41,10 +41,11 @@ public class Main {
                 // Player j2 = selectPlayer(system);
 
                 Game game = new Game(j1,j2,inputInt("Seleccione el tamano de tablero (3 o 5) >> ", 3, 5));
+                boolean rotateGrid = false;
 
                 while (game.isPlaying()) {
                     System.out.println("\n\n");
-                    System.out.println(game.getPrintableGrid());
+                    System.out.println(game.getPrintableGrid(rotateGrid));
                     System.out.println(game.getTurnStatus());
 
                     String move = inputString("Ingresa tu movimiento >> ");
@@ -65,6 +66,8 @@ public class Main {
                         System.out.println(game.getPrintableHistory());
                     } else if (move.equalsIgnoreCase("Y")) {
                         System.out.println(j1.isPlaying() ? game.getPossibleMoveList(j1) : game.getPossibleMoveList(j2));
+                    } else if (move.equalsIgnoreCase("R")) {
+                        rotateGrid = !rotateGrid;
                     } else {
                         try {
                             game.inputMove(move);
@@ -76,7 +79,7 @@ public class Main {
                     Player winner = game.hasWinner();
                     if (winner != null) {
                         game.endGame(winner);
-                        System.out.println("Ganador: " + winner.getColor() + winner.getAlias());
+                        System.out.println("Ganador: " + winner.getColor() + winner.getAlias() + Game.ANSI_RESET);
                     }
                 }
 
