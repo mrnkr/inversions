@@ -55,6 +55,16 @@ public class Main {
                         if (confirm.equalsIgnoreCase("y")) {
                             game.surrender();
                         }
+                    } else if (move.equalsIgnoreCase("E")) {
+                        String confirm = inputString("Acepta el oponente el empate? (y/n) >> ");
+
+                        if (confirm.equalsIgnoreCase("y")) {
+                            game.draw();
+                        }
+                    } else if (move.equalsIgnoreCase("H")) {
+                        System.out.println(game.getPrintableHistory());
+                    } else if (move.equalsIgnoreCase("Y")) {
+                        System.out.println(j1.isPlaying() ? game.getPossibleMoveList(j1) : game.getPossibleMoveList(j2));
                     } else {
                         try {
                             game.inputMove(move);

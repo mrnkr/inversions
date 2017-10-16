@@ -22,7 +22,7 @@ public class Game {
     private Player player2;
     private Token[][] grid;
     private boolean finished;
-    // private ArrayList<String> history = new ArrayList<>(); // Store previous moves
+    private ArrayList<String> history = new ArrayList<>(); // Store previous moves
     
     public Game(Player player1, Player player2, int size) {
         this.player1 = player1;
@@ -52,27 +52,63 @@ public class Game {
      * @throws Exception - The move is invalid
      */
     public void inputMove(String input) throws Exception {
+        String historyInput = input;
+        
         input = input.replace(" ", "");
         int curY = charToInt(input.charAt(0));
         int curX = this.grid.length - Integer.parseInt(String.valueOf(input.charAt(1)));
-        int newY = charToInt(input.charAt(4));
-        int newX = this.grid.length - Integer.parseInt(String.valueOf(input.charAt(5)));
+        int newY = charToInt(input.charAt(2));
+        int newX = this.grid.length - Integer.parseInt(String.valueOf(input.charAt(3)));
         
         moveToken(curX, curY, newX, newY);
+        this.history.add(historyInput); // This line will only be reached if the move is valid, else an exception will have been thrown
     }
     
-    /**
-     * Makes the player whose turn is ongoing to forfeit the game
-     * Remember to ask if opponent accepts before use
-     */
-    public void surrender() {
+    /*public boolean shouldGameEnd() {
+        boolean retVal = false;
+        
         if (this.player1.isPlaying()) {
-            this.player2.addWin();
+            
+        }
+    }*/
+    
+    /**
+     * Changes the game status to finished and ends the ongoing turn
+     */
+    private void endGame(Player winner) {
+        // End the turn of whoever is playing
+        if (this.player1.isPlaying()) {
+            this.player1.toggleTurn();
         } else {
-            this.player1.addWin();
+            this.player2.toggleTurn();
+        }
+        
+        if (winner != null) {
+            winner.addWin(); // Add the turn to whoever won the game
+        } else {
+            this.player1.addDraw();
+            this.player2.addDraw();
         }
         
         this.finished = true;
+    }
+    
+    /**
+     * Will end the game with a victory of the player whose turn it is not
+     */
+    public void surrender() {
+        if (this.player1.isPlaying()) {
+            endGame(this.player2);
+        } else {
+            endGame(this.player1);
+        }
+    }
+    
+    /**
+     * Will end the game as a draw
+     */
+    public void draw() {
+        endGame(null);
     }
     
     /**
@@ -105,12 +141,91 @@ public class Game {
         
         for (int i = 0; i < this.grid.length && !retVal; i++) {
             for (int j = 0; j < this.grid[i].length && !retVal; j++) {
-                if (this.grid[i][j].getOwner().equals(player)) {
-                    retVal = true;
+                try {
+                    if (this.grid[i][j].getOwner().equals(player)) {
+                        retVal = true;
+                    }
+                } catch (Exception e) {
+                    // Will enter here when there is no token in the 
                 }
             }
         }
         
+        return retVal;
+    }
+    
+    /**
+     * Check if the player who is moving is in check status.
+     * @return - The boolean with the answer
+     */
+    public boolean checkCheck() {
+        boolean retVal = false;
+        
+        if (grid.length == 5) {
+            try {
+                if (grid[4][2].getOwner().equals(this.player1)) {
+                    retVal = true;
+                }
+            } catch (Exception e) {
+
+            }
+
+            try {
+                if (grid[0][2].getOwner().equals(this.player2)) {
+                    retVal = true;
+                }
+            } catch (Exception e) {
+
+            }
+        } else {
+            try {
+                if (grid[2][1].getOwner().equals(this.player1)) {
+                    retVal = true;
+                }
+            } catch (Exception e) {
+
+            }
+
+            try {
+                if (grid[0][1].getOwner().equals(this.player2)) {
+                    retVal = true;
+                }
+            } catch (Exception e) {
+
+            }
+        }
+
+        return retVal;
+    }
+    
+    /**
+     * Will list all possible moves for a player
+     * @param player - the player to check for possible moves
+     * @return - Moves
+     */
+    public String getPossibleMoveList(Player player) {
+        String retVal = "";
+
+        for (int i = 0; i < this.grid.length; i++) {
+            for (int j = 0; j < this.grid[i].length; j++) {
+                if (this.grid[i][j] != null) {
+                    if (this.grid[i][j].getOwner().equals(player)) {
+                        for (int m = 0; m < this.grid.length; m++) {
+                            for (int n = 0; n < this.grid[m].length; n++) {
+                                if (this.isMoveValid(this.grid[i][j], i, j, m, n)) {
+                                    int val1 = j + 65;
+                                    int val2 = n + 65;
+                                    char a = (char) val1;
+                                    char b = (char) val2;
+                                    retVal += a + String.valueOf(this.grid.length - i) + " " + b + String.valueOf(this.grid.length - m) + "\n";
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
         return retVal;
     }
  
@@ -212,6 +327,7 @@ public class Game {
      */
     private boolean isMoveValid(Token token, int curX, int curY, int newX, int newY) {
         boolean retVal;
+        boolean notMoving = curX == newX && curY == newY;
         boolean isMoveDiagonal = curX != newX && curY != newY;
         
         if (removeColorFromString(token.toString()).equals("T")) {
@@ -223,7 +339,7 @@ public class Game {
         }
         
         // If the move is valid and the token that is being moved belongs to the player that is playing return true
-        return (retVal && token.getOwner().isPlaying());
+        return (!notMoving && retVal && isDestinationValid(newX, newY) && token.getOwner().isPlaying());
     }
     
     /**
@@ -236,7 +352,7 @@ public class Game {
      */
     private boolean checkLine(int curX, int curY, int newX, int newY) {
         boolean lineIsEmpty = true;
-        boolean horizontal = curX == newX;
+        boolean horizontal = curX == newX; // Used to determine whether to check a vertical line or horizontal line
         
         int curPos = curX == newX ? curY : curX;
         int newPos = curX == newX ? newY : newX;
@@ -268,27 +384,70 @@ public class Game {
      */
     private boolean checkDiagonal(int curX, int curY, int newX, int newY) {
         boolean diagonalIsEmpty = true;
+        Token origin = this.grid[curX][curY];
         
-        if (curX > newX) {
-            int aux = newX;
-            newX = curX;
-            curX = aux;
-        }
-        
-        if (curY > newY) {
-            int aux = newY;
-            newY = curY;
-            curY = aux;
-        }
-        
-        for (int i = curX, j = curY; i < newX && j < newY && diagonalIsEmpty; i++, j++) {
-            // Added this if clause to fix problems with moves to the bottom right
-            if (!this.grid[i][j].equals(this.grid[curX][curY])) {
-                diagonalIsEmpty = diagonalIsEmpty ? this.grid[i][j] == null : diagonalIsEmpty;
+        while (curX != newX && curY != newY) {
+            if (!origin.equals(this.grid[curX][curY])) {
+                diagonalIsEmpty = diagonalIsEmpty ? this.grid[curX][curY] == null : diagonalIsEmpty;
+            }
+            
+            if (curX > newX) {
+                curX--;
+            } else {
+                curX++;
+            }
+            
+            if (curY > newY) {
+                curY--;
+            } else {
+                curY++;
             }
         }
         
         return diagonalIsEmpty;
+    }
+    
+    /**
+     * Will determine whether the destination of a token is valid
+     * Any destination is valid if there is no token there
+     * A token can overtake another if such token does not belong to the same player and it is in goal
+     * @param newX - Destination X pos
+     * @param newY - Destination Y pos
+     * @return - Move has valid destination?
+     */
+    private boolean isDestinationValid(int newX, int newY) {
+        boolean retVal = true;
+        
+        if (this.grid[newX][newY] != null) {
+            // If the owner is playing then the move is not valid
+            // You cannot remove your own tokens
+            if (this.grid[newX][newY].getOwner().isPlaying()) {
+                retVal = false;
+            } else {
+                // To remove the other player's tokens, those have to be in your goal
+                if (this.player1.isPlaying()) {
+                    // Check the goal up top
+                    // If the destination is not the goal then the destination is invalid
+                    retVal = !(newX != 0 || newY != (this.grid.length - 1) / 2);
+                } else {
+                    // Check the goal down below
+                    // If the destionation is not the goal then the destination is invalid
+                    retVal = !(newX != this.grid.length - 1 || newY != (this.grid.length - 1) / 2);
+                }
+            }
+        }
+        
+        return retVal;
+    }
+    
+    public String getPrintableHistory() {
+        String retVal = "";
+
+        for (int i = history.size() - 1; i >= 0; i--) {
+            retVal += history.get(i) + "\n";
+        }
+
+        return retVal;
     }
     
     /**

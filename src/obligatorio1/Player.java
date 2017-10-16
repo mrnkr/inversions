@@ -16,14 +16,13 @@ public class Player {
     private int gamesPlayed;
     private String color;
     private int wins;
+    private int draws;
     private boolean isTurn;
    
 
     public Player(String name, String alias) {
         this.setName(name);
         this.setAlias(alias);
-        gamesPlayed = 0;
-        wins = 0;
     }
 
     //Métodos Set
@@ -45,6 +44,10 @@ public class Player {
     
     public void addWin() {
         this.wins++;
+    }
+    
+    public void addDraw() {
+        this.draws++;
     }
     
     //Métodos Get
