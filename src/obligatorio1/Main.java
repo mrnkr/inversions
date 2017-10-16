@@ -37,7 +37,7 @@ public class Main {
                 // Player j1 = selectPlayer(system);
                 Player j1 = new Player("Joselito", "joselito_patata22");
                 System.out.println("Seleccione el jugador 2");
-                Player j2 = new Player("Nadia", "nadia_love24");
+                Player j2 = new Player("Patato", "patato22");
                 // Player j2 = selectPlayer(system);
 
                 Game game = new Game(j1,j2,inputInt("Seleccione el tamano de tablero (3 o 5) >> ", 3, 5));
@@ -72,9 +72,13 @@ public class Main {
                             System.out.println("Movimiento invalido");
                         }
                     }
+                    
+                    Player winner = game.hasWinner();
+                    if (winner != null) {
+                        game.endGame(winner);
+                        System.out.println("Ganador: " + winner.getColor() + winner.getAlias());
+                    }
                 }
-
-                // game.play();
 
                 break;
             case "4":

@@ -22,6 +22,7 @@ public class Game {
     private Player player2;
     private Token[][] grid;
     private boolean finished;
+    private boolean canEnd;
     private ArrayList<String> history = new ArrayList<>(); // Store previous moves
     
     public Game(Player player1, Player player2, int size) {
@@ -75,7 +76,7 @@ public class Game {
     /**
      * Changes the game status to finished and ends the ongoing turn
      */
-    private void endGame(Player winner) {
+    public void endGame(Player winner) {
         // End the turn of whoever is playing
         if (this.player1.isPlaying()) {
             this.player1.toggleTurn();
@@ -131,6 +132,42 @@ public class Game {
         return !this.finished;
     }
     
+    public Player hasWinner() {
+        Player retVal = checkCheck();
+        
+        if (retVal == null) {
+            if (!stillHasTokensLeft(this.player1)) {
+                retVal = this.player2;
+            } 
+            
+            if (!stillHasTokensLeft(this.player2)) {
+                retVal = this.player1;
+            }
+            
+            if (retVal == null) {
+                if (getPossibleMoveList(this.player1).length() == 0 && this.player1.isPlaying()) {
+                    retVal = this.player2;
+                } 
+                
+                if (getPossibleMoveList(this.player2).length() == 0 && this.player2.isPlaying()) {
+                    retVal = this.player1;
+                }
+            }
+        }
+        
+        if (!canEnd) {
+            if (retVal != null) {
+                canEnd = !canEnd;
+            }
+        } else {
+            if (retVal == null) {
+                canEnd = !canEnd;
+            }
+        }
+        
+        return retVal;
+    }
+    
     /**
      * Returns true if player that is passed still has tokens left in the grid
      * @param player - The player
@@ -155,16 +192,16 @@ public class Game {
     }
     
     /**
-     * Check if the player who is moving is in check status.
-     * @return - The boolean with the answer
+     * Check if someone is in a check position
+     * @return - The player in check position
      */
-    public boolean checkCheck() {
-        boolean retVal = false;
+    public Player checkCheck() {
+        Player retVal = null;
         
         if (grid.length == 5) {
             try {
                 if (grid[4][2].getOwner().equals(this.player1)) {
-                    retVal = true;
+                    retVal = this.player1;
                 }
             } catch (Exception e) {
 
@@ -172,7 +209,7 @@ public class Game {
 
             try {
                 if (grid[0][2].getOwner().equals(this.player2)) {
-                    retVal = true;
+                    retVal = this.player2;
                 }
             } catch (Exception e) {
 
@@ -180,7 +217,7 @@ public class Game {
         } else {
             try {
                 if (grid[2][1].getOwner().equals(this.player1)) {
-                    retVal = true;
+                    retVal = this.player1;
                 }
             } catch (Exception e) {
 
@@ -188,7 +225,7 @@ public class Game {
 
             try {
                 if (grid[0][1].getOwner().equals(this.player2)) {
-                    retVal = true;
+                    retVal = this.player2;
                 }
             } catch (Exception e) {
 
@@ -328,7 +365,7 @@ public class Game {
     private boolean isMoveValid(Token token, int curX, int curY, int newX, int newY) {
         boolean retVal;
         boolean notMoving = curX == newX && curY == newY;
-        boolean isMoveDiagonal = curX != newX && curY != newY;
+        boolean isMoveDiagonal = curX != newX && curY != newY && Math.abs(newX-curX) == Math.abs(newY-curY);
         
         if (removeColorFromString(token.toString()).equals("T")) {
             // Make sure move is either vertical or horizontal and that the token didnt go over any other token
