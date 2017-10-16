@@ -157,6 +157,7 @@ public class Game {
         
         if (!canEnd) {
             if (retVal != null) {
+                retVal = null;
                 canEnd = !canEnd;
             }
         } else {
