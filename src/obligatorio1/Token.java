@@ -37,12 +37,6 @@ public class Token {
     public Player getOwner() {
         return owner;
     }
-    
-     public boolean getType() {
-        return type;
-    }
-    
-    
 
     @Override
     public String toString() {

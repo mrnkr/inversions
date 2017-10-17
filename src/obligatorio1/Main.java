@@ -6,6 +6,7 @@
  */
 package obligatorio1;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Scanner;
 
 /**
@@ -30,64 +31,66 @@ public class Main {
                 createPlayer(system);
                 break;
             case "2":
-                // estadisticas(selectPlayer(sistema));
+                if(system.getPlayerList().isEmpty())
+                    System.out.println("No hay jugadores");
+                
+                Collections.sort(system.getPlayerList());
+                for(int i=0; i<system.getPlayerList().size(); i++){
+                    System.out.println(system.getPlayerList().get(i));
+                }
                 break;
             case "3":
                 System.out.println("Seleccione el jugador 1");
                 // Player j1 = selectPlayer(system);
-                Player j1 = new Player("Joselito", "joselito_patata22");
+                Player j1 = new Player("Joselito", "joselito_patata22", 19);
+                system.getPlayerList().add(j1);
                 System.out.println("Seleccione el jugador 2");
-                Player j2 = new Player("Nadia", "nadia_love24");
+                Player j2 = new Player("Patato", "patato22", 22);
+                system.getPlayerList().add(j2);
                 // Player j2 = selectPlayer(system);
 
                 Game game = new Game(j1,j2,inputInt("Seleccione el tamano de tablero (3 o 5) >> ", 3, 5));
+                boolean rotateGrid = false;
 
                 while (game.isPlaying()) {
                     System.out.println("\n\n");
-                    System.out.println(game.getPrintableGrid());
+                    System.out.println(game.getPrintableGrid(rotateGrid));
                     System.out.println(game.getTurnStatus());
-                    
-                    if(game.hasMoves().equals("")){
-                       System.out.println("No hay movimientos disponibles");
-                       break;
-                    }
-                    if(game.checkCheck()){
-                        System.out.println("Estas en jaque");
-                    }
-                    
+
                     String move = inputString("Ingresa tu movimiento >> ");
 
-                         if (move.equalsIgnoreCase("H")) {
-                        System.out.println("La lista de movimientos es:" + game.hasMoves());
-
-                        }
-                        if (move.equalsIgnoreCase("E")) {
-                        String confirm = inputString("Acepta la oferta de empate? (y/n) >> ");
-
-                        if (confirm.equalsIgnoreCase("y")) {
-                            game.draw();
-                        }
-                        }
                     if (move.equalsIgnoreCase("X")) {
                         String confirm = inputString("Acepta el oponente la rendicion? (y/n) >> ");
 
                         if (confirm.equalsIgnoreCase("y")) {
-                            game.endGame();
+                            game.surrender();
                         }
-                    } else  {
-                        
-                  
+                    } else if (move.equalsIgnoreCase("E")) {
+                        String confirm = inputString("Acepta el oponente el empate? (y/n) >> ");
+
+                        if (confirm.equalsIgnoreCase("y")) {
+                            game.draw();
+                        }
+                    } else if (move.equalsIgnoreCase("H")) {
+                        System.out.println(game.getPrintableHistory());
+                    } else if (move.equalsIgnoreCase("Y")) {
+                        System.out.println(j1.isPlaying() ? game.getPossibleMoveList(j1) : game.getPossibleMoveList(j2));
+                    } else if (move.equalsIgnoreCase("R")) {
+                        rotateGrid = !rotateGrid;
+                    } else {
                         try {
                             game.inputMove(move);
-                            
                         } catch (Exception e) {
                             System.out.println("Movimiento invalido");
                         }
                     }
-                    game.getHistory().add(move);
+                    
+                    Player winner = game.hasWinner();
+                    if (winner != null) {
+                        game.endGame(winner);
+                        System.out.println("Ganador: " + winner.getColor() + winner.getAlias() + Game.ANSI_RESET);
+                    }
                 }
-
-                // game.play();
 
                 break;
             case "4":
@@ -104,9 +107,9 @@ public class Main {
     
     //Crear jugador
     public static void createPlayer(MySystem system) {
-        Player player = new Player(inputString("Ingrese un nombre"), inputString("Ingrese un alias"));
+        Player player = new Player(inputString("Ingrese un nombre\n"), inputString("Ingrese un alias\n"), inputInt("Ingrese la edad\n", 3, 99));
         
-        if (system.getPlayerList().contains(player)) {
+        while(system.getPlayerList().contains(player)) {
             player.setAlias(inputString("Vuelva a ingresar un alias que no exista."));
         }
         

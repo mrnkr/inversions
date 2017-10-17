@@ -14,7 +14,7 @@ import java.util.ArrayList;
  */
 
 public class MySystem {
-    private  ArrayList<Player> playerlist;
+    private  ArrayList<Player> playerlist = new ArrayList<Player>();
     
     public void setPlayerList(ArrayList<Player> players){
         this.playerlist = players;

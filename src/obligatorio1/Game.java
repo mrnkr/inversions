@@ -13,16 +13,17 @@ import java.util.ArrayList;
  * @author - Álvaro Nicoli - Programación 2 - Número de estudiante: 220159 - Universidad ORT
  */
 public class Game {
-    private static final String ANSI_RESET = "\u001B[0m";
-    private static final String ANSI_RED = "\u001B[31m";
-    private static final String ANSI_GREEN = "\u001B[32m";
-    private static final String ANSI_BLUE = "\u001B[34m";
+    public static final String ANSI_RESET = "\u001B[0m";
+    public static final String ANSI_RED = "\u001B[31m";
+    public static final String ANSI_GREEN = "\u001B[32m";
+    public static final String ANSI_BLUE = "\u001B[34m";
     
     private Player player1;
     private Player player2;
     private Token[][] grid;
     private boolean finished;
-    private ArrayList<String> history;
+    private boolean canEnd;
+    private ArrayList<String> history = new ArrayList<>(); // Store previous moves
     
     public Game(Player player1, Player player2, int size) {
         this.player1 = player1;
@@ -32,7 +33,6 @@ public class Game {
         this.player2.setColor(ANSI_BLUE);
         this.grid = new Token[size][size];
         this.prepareGrid(player1, player2);
-        this.history = new ArrayList<>();
     }
     
     /**
@@ -53,37 +53,57 @@ public class Game {
      * @throws Exception - The move is invalid
      */
     public void inputMove(String input) throws Exception {
+        String historyInput = input;
+        
         input = input.replace(" ", "");
         int curY = charToInt(input.charAt(0));
         int curX = this.grid.length - Integer.parseInt(String.valueOf(input.charAt(1)));
-        int newY = charToInt(input.charAt(4));
-        int newX = this.grid.length - Integer.parseInt(String.valueOf(input.charAt(5)));
+        int newY = charToInt(input.charAt(2));
+        int newX = this.grid.length - Integer.parseInt(String.valueOf(input.charAt(3)));
         
         moveToken(curX, curY, newX, newY);
+        this.history.add(historyInput); // This line will only be reached if the move is valid, else an exception will have been thrown
     }
     
     /**
-     * Makes the player whose turn is ongoing to forfeit the game
-     * Remember to ask if opponent accepts before use
+     * Changes the game status to finished and ends the ongoing turn
+     * @param winner - The player who should be given the game
      */
-    public void endGame() {
+    public void endGame(Player winner) {
+        // End the turn of whoever is playing
         if (this.player1.isPlaying()) {
-            this.player2.addWin();
+            this.player1.toggleTurn();
         } else {
-            this.player1.addWin();
+            this.player2.toggleTurn();
         }
         
+        if (winner != null) {
+            winner.addWin(); // Add the turn to whoever won the game
+        } else {
+            this.player1.addDraw();
+            this.player2.addDraw();
+        }
+        this.player1.addGamesPlayed();
+        this.player2.addGamesPlayed();
         this.finished = true;
     }
     
-     /**
-     * Makes the player whose turn is ongoing to make a draw call on the game
-     * Remember to ask if opponent accepts before use
+    /**
+     * Will end the game with a victory of the player whose turn it is not
+     */
+    public void surrender() {
+        if (this.player1.isPlaying()) {
+            endGame(this.player2);
+        } else {
+            endGame(this.player1);
+        }
+    }
+    
+    /**
+     * Will end the game as a draw
      */
     public void draw() {
-        player1.addDraw();
-        player2.addDraw();
-        this.finished = true;
+        endGame(null);
     }
     
     /**
@@ -107,6 +127,48 @@ public class Game {
     }
     
     /**
+     * Determines if the game has been won by someone
+     * @return - The winner
+     */
+    public Player hasWinner() {
+        Player retVal = checkCheck();
+        
+        if (retVal == null) {
+            if (!stillHasTokensLeft(this.player1)) {
+                retVal = this.player2;
+            } 
+            
+            if (!stillHasTokensLeft(this.player2)) {
+                retVal = this.player1;
+            }
+            
+            if (retVal == null) {
+                if (getPossibleMoveList(this.player1).length() == 0 && this.player1.isPlaying()) {
+                    retVal = this.player2;
+                } 
+                
+                if (getPossibleMoveList(this.player2).length() == 0 && this.player2.isPlaying()) {
+                    retVal = this.player1;
+                }
+            }
+        }
+        
+        // Makes sure the player who is losing has a chance to deffend themselves before losing
+        if (!canEnd) {
+            if (retVal != null) {
+                retVal = null;
+                canEnd = !canEnd;
+            }
+        } else {
+            if (retVal == null) {
+                canEnd = !canEnd;
+            }
+        }
+        
+        return retVal;
+    }
+    
+    /**
      * Returns true if player that is passed still has tokens left in the grid
      * @param player - The player
      * @return - Still has tokens?
@@ -116,44 +178,202 @@ public class Game {
         
         for (int i = 0; i < this.grid.length && !retVal; i++) {
             for (int j = 0; j < this.grid[i].length && !retVal; j++) {
-                if (this.grid[i][j].getOwner().equals(player)) {
-                    retVal = true;
+                try {
+                    if (this.grid[i][j].getOwner().equals(player)) {
+                        retVal = true;
+                    }
+                } catch (Exception e) {
+                    // Will enter here when there is no token in the 
                 }
             }
         }
         
         return retVal;
     }
+    
+    /**
+     * Check if someone is in a check position
+     * @return - The player in check position
+     */
+    public Player checkCheck() {
+        Player retVal = null;
+        
+        if (grid.length == 5) {
+            try {
+                if (grid[4][2].getOwner().equals(this.player1)) {
+                    retVal = this.player1;
+                }
+            } catch (Exception e) {
+
+            }
+
+            try {
+                if (grid[0][2].getOwner().equals(this.player2)) {
+                    retVal = this.player2;
+                }
+            } catch (Exception e) {
+
+            }
+        } else {
+            try {
+                if (grid[2][1].getOwner().equals(this.player1)) {
+                    retVal = this.player1;
+                }
+            } catch (Exception e) {
+
+            }
+
+            try {
+                if (grid[0][1].getOwner().equals(this.player2)) {
+                    retVal = this.player2;
+                }
+            } catch (Exception e) {
+
+            }
+        }
+
+        return retVal;
+    }
+    
+    /**
+     * Will list all possible moves for a player
+     * @param player - the player to check for possible moves
+     * @return - Moves
+     */
+    public String getPossibleMoveList(Player player) {
+        String retVal = "";
+        ArrayList<String> normalmoves = new ArrayList<>();
+        ArrayList<String> defensemoves = new ArrayList<>();
+        ArrayList<String> attackmoves = new ArrayList<>();
+        String move = "";
+        for (int i = 0; i < this.grid.length; i++) {
+            for (int j = 0; j < this.grid[i].length; j++) {
+                if (this.grid[i][j] != null) {
+                    if (this.grid[i][j].getOwner().equals(player)) {
+                        for (int m = 0; m < this.grid.length; m++) {
+                            for (int n = 0; n < this.grid[m].length; n++) {
+                                if (this.isMoveValid(this.grid[i][j], i, j, m, n)) {
+                                    int val1 = j + 65;
+                                    int val2 = n + 65;
+                                    char a = (char) val1;
+                                    char b = (char) val2;
+                                    move = a + String.valueOf(this.grid.length - i) + " " + b + String.valueOf(this.grid.length - m) + "\n".toUpperCase();
+                                    normalmoves.add(move);
+                                    String aux = move.trim().substring(2);
+                                    
+                                    if(this.player1.isPlaying()){
+                                   if(this.grid.length==3){
+                                      
+                                         if(aux.equals(" B1")){
+                                        attackmoves.add(move);
+                                        normalmoves.remove(move);
+                                    }
+                                    if(aux.equals(" B3")){
+                                        defensemoves.add(move);
+                                        normalmoves.remove(move);
+                                    }
+                                        }
+                                        if(this.grid.length==5){
+                                         if(aux.equals(" C1")){
+                                        attackmoves.add(move);
+                                        normalmoves.remove(move);
+                                    }
+                                    if(aux.equals(" C5")){
+                                        defensemoves.add(move);
+                                        normalmoves.remove(move);
+                                    }
+                                    }
+                                    if(this.player2.isPlaying()){
+                                        if(this.grid.length==3){
+                                         if(aux.equals(" B3")){
+                                        attackmoves.add(move);
+                                        normalmoves.remove(move);
+                                    }
+                                    if(aux.equals(" B1")){
+                                        defensemoves.add(move);
+                                        normalmoves.remove(move);
+                                    }
+                                        }
+                                        if(this.grid.length==5){
+                                         if(aux.equals(" C5")){
+                                        attackmoves.add(move);
+                                        normalmoves.remove(move);
+                                    }
+                                    if(aux.equals(" C1")){
+                                        defensemoves.add(move);
+                                        normalmoves.remove(move);
+                                    }
+                                        }
+                                       
+                                    }
+                                    }    
+                                        
+                                    
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        
+    
+                                 if(!defensemoves.isEmpty()){
+                                     retVal += "Movimientos de defensa\n";
+                                     for(int i=0; i<defensemoves.size(); i++){
+                                     retVal += defensemoves.get(i);
+                                             }
+                                 }
+                                 if(!attackmoves.isEmpty()){
+                                     retVal += "Movimientos de ataque\n";
+                                     for(int i=0; i<attackmoves.size(); i++){
+                                     retVal += attackmoves.get(i);
+                                             }
+                                 }
+                                 if(!normalmoves.isEmpty()){
+                                     retVal += "Movimientos normales\n";
+                                     for(int i=0; i<normalmoves.size(); i++){
+                                     retVal += normalmoves.get(i);
+                                             }
+                                 }
+        return retVal;
+    }
  
     /**
      * Generates a String object to present the grid to the user by means of the terminal
+     * @param rotate - If the grid should be rotated
      * @return - The beautiful grid
      */
-    public String getPrintableGrid() {
+    public String getPrintableGrid(boolean rotate) {
         String retVal = ""; // Value to be returned
+        Token [][] grid = rotate ? rotateGrid() : this.grid;
         boolean addingElements = false; // Whether the row being added to retVal contains Tokens or only divider characters
         
-        for (int i = 0; i < this.grid.length; i++) {
+        for (int i = 0; i < grid.length; i++) {
             // Determines whether the row being added contains part of a goal
             // If i == 4 the behavior will always be the same, if i == 0 or 1 the behavior is the same in case of the divider
-            boolean hasGoal = i == 0 || (i == 1 && !addingElements) || i == this.grid.length - 1;
+            boolean hasGoal = i == 0 || (i == 1 && !addingElements) || i == grid.length - 1;
             
-            for (int j = 0; j < this.grid[i].length; j++) {
+            for (int j = 0; j < grid[i].length; j++) {
                 // Determines whether the horizontal position corresponds to that of the goal
-                boolean isGoal = hasGoal && j >= (this.grid[i].length / 2) && j < ((this.grid[i].length / 2) + 2);
+                boolean isGoal = hasGoal && j >= (grid[i].length / 2) && j < ((grid[i].length / 2) + 2);
                 
                 if (addingElements) {
                     if (j == 0) {
-                        retVal += this.grid.length - i + " ";
+                        if (rotate) {
+                            retVal += i + 1 + " ";
+                        } else {
+                            retVal += grid.length - i + " ";
+                        }
                     }
                     
-                    retVal += (isGoal ? (ANSI_GREEN + "*" + ANSI_RESET) : "|") + (this.grid[i][j] != null ? (this.grid[i][j] + ANSI_RESET) : " ");
+                    retVal += (isGoal ? (ANSI_GREEN + "*" + ANSI_RESET) : "|") + (grid[i][j] != null ? (grid[i][j] + ANSI_RESET) : " ");
                 } else {
                     if (j == 0) {
                         retVal += "  ";
                     }
                     
-                    retVal += isGoal ? ((j == (this.grid[i].length / 2) + 1) ? (ANSI_GREEN + "*" + ANSI_RESET + "-") : (ANSI_GREEN + "**" + ANSI_RESET)) : "+-";
+                    retVal += isGoal ? ((j == (grid[i].length / 2) + 1) ? (ANSI_GREEN + "*" + ANSI_RESET + "-") : (ANSI_GREEN + "**" + ANSI_RESET)) : "+-";
                 }
             }
             
@@ -162,7 +382,7 @@ public class Game {
                 retVal += "|\n";
                 
                 // Subtracts one to the vertical index in order to add elements correctly
-                if (i == this.grid.length - 1) {
+                if (i == grid.length - 1) {
                     i--;
                 }
             } else {
@@ -184,7 +404,23 @@ public class Game {
             addingElements = !addingElements;
         }
         
-        retVal += this.grid.length == 5 ? "   A B C D E\n" : "   A B C\n";
+        if (rotate) {
+            retVal += grid.length == 5 ? "   E D C B A\n" : "   C B A\n";
+        } else {
+            retVal += grid.length == 5 ? "   A B C D E\n" : "   A B C\n";
+        }
+        
+        return retVal;
+    }
+    
+    public Token[][] rotateGrid() {
+        Token[][] retVal = new Token[this.grid.length][this.grid.length];
+        
+        for (int i = 0; i < this.grid.length; i++) {
+            for (int j = 0; j < this.grid[i].length; j++) {
+                retVal[this.grid.length - i - 1][this.grid[i].length - j - 1] = this.grid[i][j];
+            }
+        }
         
         return retVal;
     }
@@ -223,7 +459,8 @@ public class Game {
      */
     private boolean isMoveValid(Token token, int curX, int curY, int newX, int newY) {
         boolean retVal;
-        boolean isMoveDiagonal = curX != newX && curY != newY;
+        boolean notMoving = curX == newX && curY == newY;
+        boolean isMoveDiagonal = curX != newX && curY != newY && Math.abs(newX-curX) == Math.abs(newY-curY);
         
         if (removeColorFromString(token.toString()).equals("T")) {
             // Make sure move is either vertical or horizontal and that the token didnt go over any other token
@@ -234,7 +471,7 @@ public class Game {
         }
         
         // If the move is valid and the token that is being moved belongs to the player that is playing return true
-        return (retVal && token.getOwner().isPlaying());
+        return (!notMoving && retVal && isDestinationValid(newX, newY) && token.getOwner().isPlaying());
     }
     
     /**
@@ -247,7 +484,7 @@ public class Game {
      */
     private boolean checkLine(int curX, int curY, int newX, int newY) {
         boolean lineIsEmpty = true;
-        boolean horizontal = curX == newX;
+        boolean horizontal = curX == newX; // Used to determine whether to check a vertical line or horizontal line
         
         int curPos = curX == newX ? curY : curX;
         int newPos = curX == newX ? newY : newX;
@@ -279,23 +516,23 @@ public class Game {
      */
     private boolean checkDiagonal(int curX, int curY, int newX, int newY) {
         boolean diagonalIsEmpty = true;
+        Token origin = this.grid[curX][curY];
         
-        if (curX > newX) {
-            int aux = newX;
-            newX = curX;
-            curX = aux;
-        }
-        
-        if (curY > newY) {
-            int aux = newY;
-            newY = curY;
-            curY = aux;
-        }
-        
-        for (int i = curX, j = curY; i < newX && j < newY && diagonalIsEmpty; i++, j++) {
-            // Added this if clause to fix problems with moves to the bottom right
-            if (!this.grid[i][j].equals(this.grid[curX][curY])) {
-                diagonalIsEmpty = diagonalIsEmpty ? this.grid[i][j] == null : diagonalIsEmpty;
+        while (curX != newX && curY != newY) {
+            if (!origin.equals(this.grid[curX][curY])) {
+                diagonalIsEmpty = diagonalIsEmpty ? this.grid[curX][curY] == null : diagonalIsEmpty;
+            }
+            
+            if (curX > newX) {
+                curX--;
+            } else {
+                curX++;
+            }
+            
+            if (curY > newY) {
+                curY--;
+            } else {
+                curY++;
             }
         }
         
@@ -303,11 +540,52 @@ public class Game {
     }
     
     /**
+     * Will determine whether the destination of a token is valid
+     * Any destination is valid if there is no token there
+     * A token can overtake another if such token does not belong to the same player and it is in goal
+     * @param newX - Destination X pos
+     * @param newY - Destination Y pos
+     * @return - Move has valid destination?
+     */
+    private boolean isDestinationValid(int newX, int newY) {
+        boolean retVal = true;
+        
+        if (this.grid[newX][newY] != null) {
+            // If the owner is playing then the move is not valid
+            // You cannot remove your own tokens
+            if (this.grid[newX][newY].getOwner().isPlaying()) {
+                retVal = false;
+            } else {
+                // To remove the other player's tokens, those have to be in your goal
+                if (this.player1.isPlaying()) {
+                    // Check the goal up top
+                    // If the destination is not the goal then the destination is invalid
+                    retVal = !(newX != 0 || newY != (this.grid.length - 1) / 2);
+                } else {
+                    // Check the goal down below
+                    // If the destionation is not the goal then the destination is invalid
+                    retVal = !(newX != this.grid.length - 1 || newY != (this.grid.length - 1) / 2);
+                }
+            }
+        }
+        
+        return retVal;
+    }
+    
+    public String getPrintableHistory() {
+        String retVal = "";
+
+        for (int i = history.size() - 1; i >= 0; i--) {
+            retVal += history.get(i) + "\n";
+        }
+
+        return retVal;
+    }
+    
+    /**
      * Finishes a player's turn and starts the other's
      */
     private void endRound() {
-        if (checkCheck())
-            endGame();
         this.player1.toggleTurn();
         this.player2.toggleTurn();
     }
@@ -334,91 +612,4 @@ public class Game {
         
         return retVal;
     }
-    
-    /**
-     * Check if the player who is moving is in check status.
-     * @return - The boolean with the answer
-     */
-    public boolean checkCheck() {
-        boolean retVal = false;
-        if(this.player1.isPlaying()){
-            if (grid.length == 5){
-                  if(grid [0][2] != null)
-               if (grid [0][2].getOwner().equals(player2)){
-                retVal = true;
-               }
-            }else{
-                  if(grid [0][1] != null)
-               if (grid [0][1].getOwner().equals(player2))
-                   retVal = true; 
-            }
-        }else{
-           if(this.player2.isPlaying()){
-            if (grid.length == 5){
-                  if(grid [4][2] != null)
-               if (grid [4][2].getOwner().equals(player1)){
-                retVal = true;
-               }
-            }else{
-                if(grid [2][1] != null)
-               if (grid [2][1].getOwner().equals(player1))
-                   retVal = true; 
-            }
-           }
-        }
-        return retVal;
-    }
-    
-      public ArrayList<String> getHistory(){
-          return this.history;
-      }
-      
-      public String printableHistory(){
-          String retVal = "";
-          
-          for(int i = history.size()-1; i>0; i= i-2){
-              retVal += history.get(i) + " - " + history.get(i-1) + "\n" ;
-          }  
-          return retVal;
-      }
-     
-      public String hasMoves(){
-         String retVal = "";
-         Player playing;
-        
-        if (player1.isPlaying()){
-          playing = player1;
-      }else{
-            playing = player2;
-        }
-        
-               for (int i=0; i<this.grid.length; i++){
-           
-         
-          for (int j=0; j<this.grid.length; j++){
-        if(this.grid[i][j]!=null)
-           if(this.grid[i][j].getOwner().equals(playing)){
-                  for (int m=0; m<this.grid.length; m++){
-           
-         
-          for (int n=0; n<this.grid[m].length; n++){
-               if(this.isMoveValid(this.grid[i][j], i, j, m, n)){
-                   
-                    int val1 = j+65;
-                    int val2 = n+65;
-                    char a = (char) val1;
-                    char b = (char) val2;
-                    retVal += a + String.valueOf(i+1) + "-" + b + String.valueOf(m+1) + "\n";
-                }
-              
-          }
-                  }    
-           }
-          }
-         
-               }
-         
-          return retVal;
-      }
-    }
-      
+}

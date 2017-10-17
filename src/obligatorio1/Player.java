@@ -10,22 +10,21 @@ package obligatorio1;
  * @author - Darío Dathaguy - Programación 2 - Número de estudiante: 220839 - Universidad ORT 
  * @author - Álvaro Nicoli - Programación 2 - Número de estudiante: 220159 - Universidad ORT
  */
-public class Player {
+public class Player implements Comparable<Player> {
     private String name;
     private String alias;
     private int gamesPlayed;
     private String color;
     private int wins;
     private int draws;
+    private int edad;
     private boolean isTurn;
    
 
-    public Player(String name, String alias) {
+    public Player(String name, String alias, int edad) {
         this.setName(name);
         this.setAlias(alias);
-        gamesPlayed = 0;
-        wins = 0;
-        draws = 0;
+        this.setEdad(edad);
     }
 
     //Métodos Set
@@ -37,6 +36,9 @@ public class Player {
         this.alias = alias;
     }
     
+     public void setEdad(int edad) {
+        this.edad = edad;
+    }
     public void setColor(String color) {
         this.color = color;
     }
@@ -47,12 +49,14 @@ public class Player {
     
     public void addWin() {
         this.wins++;
+    }
+    
+    public void addGamesPlayed() {
         this.gamesPlayed++;
     }
     
     public void addDraw() {
         this.draws++;
-        this.gamesPlayed++;
     }
     
     //Métodos Get
@@ -63,6 +67,10 @@ public class Player {
     public String getAlias() {
         return alias;
     }
+    
+    public int getEdad() {
+        return edad;
+    }
 
     public int getGamesPlayed() {
         return gamesPlayed;
@@ -70,6 +78,10 @@ public class Player {
 
     public int getWins() {
         return wins;
+    }
+    
+    public int getDraws() {
+        return draws;
     }
     
     public String getColor() {
@@ -81,16 +93,16 @@ public class Player {
     }
 
     
-    //Mostrar instancias
+    //Show players
     @Override
     public String toString() {
-        return "El nombre del jugador: " + this.getName() + "\nSu alias es: " + this.getAlias()
-                + "\nSu cantidad de partidas es:" + this.getGamesPlayed()
-                + "\nSu cantidad de victorias es: " + this.getWins();
-                
+            return "Alias: " + this.getAlias() + " Wins: " + this.getWins()
+                + " Draws " + this.getDraws()
+                + " Losses " + (this.getGamesPlayed()-(this.getWins()+this.getDraws()))
+                + " Total games " + this.getGamesPlayed();
     }
     
-    //Redefinir equals.  Un jugador es igual a otro si tiene el mismo alias.
+    //Redefine equals, 2 players are the same player if both have the same alias.
     @Override
     public boolean equals(Object o) {
         boolean retVal;
@@ -102,4 +114,24 @@ public class Player {
                 }
         return retVal;
     }
+    
+    
+    public int compareTo(Player p) {
+       int retVal=0;
+        if (this.getWins() > p.getWins()) {
+                retVal = 1;
+            }
+            if (this.getWins() > p.getWins()) {
+                retVal = -1;
+            }
+          return retVal;
+        }
+
+        
+    
+
+
+    
+    
+   
 }
