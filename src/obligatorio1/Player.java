@@ -96,8 +96,6 @@ public class Player {
         return isTurn;
     }
 
-    
-    //Show players
     @Override
     public String toString() {
         return "Alias: " + this.alias
@@ -107,7 +105,6 @@ public class Player {
                 + "\n\tPartidas jugadas: " + this.gamesPlayed;
     }
 
-    //Redefine equals, 2 players are the same player if both have the same alias.
     @Override
     public boolean equals(Object o) {
         boolean retVal = false;

@@ -493,7 +493,8 @@ public class Game {
      */
     private boolean checkLine(int curX, int curY, int newX, int newY) {
         boolean lineIsEmpty = true;
-        boolean horizontal = curX == newX; // Used to determine whether to check a vertical line or horizontal line
+        boolean horizontal = curX == newX; // Used to determine whether to check a horizontal line
+        boolean vertical = curY == newY; // Used to determine whether to check a vertical line
         
         int curPos = curX == newX ? curY : curX;
         int newPos = curX == newX ? newY : newX;
@@ -507,8 +508,13 @@ public class Game {
         for (int i = curPos + 1; i < newPos && lineIsEmpty; i++) {
             if (horizontal) {
                 lineIsEmpty = lineIsEmpty ? this.grid[curX][i] == null : lineIsEmpty;
-            } else {
+            } else if (vertical) {
                 lineIsEmpty = lineIsEmpty ? this.grid[i][curY] == null : lineIsEmpty;
+            } else {
+                // This will happen when the move was being evaluated
+                // as a line only because it wasn't diagonal
+                // even if it wasn't a straight line either
+                lineIsEmpty = false;
             }
         }
         
