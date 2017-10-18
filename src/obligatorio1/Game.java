@@ -470,10 +470,12 @@ public class Game {
         boolean retVal;
         boolean notMoving = curX == newX && curY == newY;
         boolean isMoveDiagonal = curX != newX && curY != newY && Math.abs(newX-curX) == Math.abs(newY-curY);
+        boolean isMoveHorizontal = curX == newX;
+        boolean isMoveVertical = curY == newY;
         
         if (removeColorFromString(token.toString()).equals("T")) {
             // Make sure move is either vertical or horizontal and that the token didnt go over any other token
-            retVal = (!isMoveDiagonal && checkLine(curX, curY, newX, newY));
+            retVal = ((isMoveHorizontal || isMoveVertical) && checkLine(curX, curY, newX, newY));
         } else {
             // Make sure move is diagonal and that the token didnt go over any other token
             retVal = (isMoveDiagonal && checkDiagonal(curX, curY, newX, newY));
@@ -494,7 +496,6 @@ public class Game {
     private boolean checkLine(int curX, int curY, int newX, int newY) {
         boolean lineIsEmpty = true;
         boolean horizontal = curX == newX; // Used to determine whether to check a horizontal line
-        boolean vertical = curY == newY; // Used to determine whether to check a vertical line
         
         int curPos = curX == newX ? curY : curX;
         int newPos = curX == newX ? newY : newX;
@@ -508,13 +509,8 @@ public class Game {
         for (int i = curPos + 1; i < newPos && lineIsEmpty; i++) {
             if (horizontal) {
                 lineIsEmpty = lineIsEmpty ? this.grid[curX][i] == null : lineIsEmpty;
-            } else if (vertical) {
-                lineIsEmpty = lineIsEmpty ? this.grid[i][curY] == null : lineIsEmpty;
             } else {
-                // This will happen when the move was being evaluated
-                // as a line only because it wasn't diagonal
-                // even if it wasn't a straight line either
-                lineIsEmpty = false;
+                lineIsEmpty = lineIsEmpty ? this.grid[i][curY] == null : lineIsEmpty;
             }
         }
         
