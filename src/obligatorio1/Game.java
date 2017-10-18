@@ -78,8 +78,16 @@ public class Game {
         }
         
         if (winner != null) {
-            winner.addWin(); // Add the turn to whoever won the game
+            winner.addWin(); // Add the victory to whoever won the game
+            
+            // Also log the loss to the other player
+            if (this.player1.equals(winner)) {
+                this.player2.addLoss();
+            } else {
+                this.player1.addLoss();
+            }
         } else {
+            // If the winner is null it means the game is a draw
             this.player1.addDraw();
             this.player2.addDraw();
         }
@@ -241,7 +249,13 @@ public class Game {
      */
     public String getPossibleMoveList(Player player) {
         String retVal = "";
-
+        
+        ArrayList<String> regularMoves = new ArrayList<>();
+        ArrayList<String> defensiveMoves = new ArrayList<>();
+        ArrayList<String> offensiveMoves = new ArrayList<>();
+        
+        String move = "";
+        
         for (int i = 0; i < this.grid.length; i++) {
             for (int j = 0; j < this.grid[i].length; j++) {
                 if (this.grid[i][j] != null) {
@@ -253,7 +267,57 @@ public class Game {
                                     int val2 = n + 65;
                                     char a = (char) val1;
                                     char b = (char) val2;
-                                    retVal += a + String.valueOf(this.grid.length - i) + " " + b + String.valueOf(this.grid.length - m) + "\n";
+                                    move = a + String.valueOf(this.grid.length - i) + " " + b + String.valueOf(this.grid.length - m) + "\n".toUpperCase();
+                                    regularMoves.add(move);
+                                    String aux = move.trim().substring(2);
+
+                                    if (this.player1.isPlaying()) {
+                                        if (this.grid.length == 3) {
+
+                                            if (aux.equals(" B1")) {
+                                                offensiveMoves.add(move);
+                                                regularMoves.remove(move);
+                                            }
+                                            if (aux.equals(" B3")) {
+                                                defensiveMoves.add(move);
+                                                regularMoves.remove(move);
+                                            }
+                                        }
+                                        if (this.grid.length == 5) {
+                                            if (aux.equals(" C1")) {
+                                                offensiveMoves.add(move);
+                                                regularMoves.remove(move);
+                                            }
+                                            if (aux.equals(" C5")) {
+                                                defensiveMoves.add(move);
+                                                regularMoves.remove(move);
+                                            }
+                                        }
+                                        if (this.player2.isPlaying()) {
+                                            if (this.grid.length == 3) {
+                                                if (aux.equals(" B3")) {
+                                                    offensiveMoves.add(move);
+                                                    regularMoves.remove(move);
+                                                }
+                                                if (aux.equals(" B1")) {
+                                                    defensiveMoves.add(move);
+                                                    regularMoves.remove(move);
+                                                }
+                                            }
+                                            if (this.grid.length == 5) {
+                                                if (aux.equals(" C5")) {
+                                                    offensiveMoves.add(move);
+                                                    regularMoves.remove(move);
+                                                }
+                                                if (aux.equals(" C1")) {
+                                                    defensiveMoves.add(move);
+                                                    regularMoves.remove(move);
+                                                }
+                                            }
+
+                                        }
+                                    }
+
                                 }
                             }
                         }
@@ -262,6 +326,25 @@ public class Game {
             }
         }
 
+        if (!defensiveMoves.isEmpty()) {
+            retVal += "Movimientos de defensa\n";
+            for (int i = 0; i < defensiveMoves.size(); i++) {
+                retVal += defensiveMoves.get(i);
+            }
+        }
+        if (!offensiveMoves.isEmpty()) {
+            retVal += "Movimientos de ataque\n";
+            for (int i = 0; i < offensiveMoves.size(); i++) {
+                retVal += offensiveMoves.get(i);
+            }
+        }
+        if (!regularMoves.isEmpty()) {
+            retVal += "Movimientos normales\n";
+            for (int i = 0; i < regularMoves.size(); i++) {
+                retVal += regularMoves.get(i);
+            }
+        }
+        
         return retVal;
     }
  
