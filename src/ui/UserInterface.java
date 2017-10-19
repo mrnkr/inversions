@@ -24,7 +24,11 @@ public class UserInterface {
                                              "║ 3. Ranking                          ║\n" +
                                              "╚═════════════════════════════════════╝\n\n";
     
-    private final MySystem system = new MySystem();
+    private MySystem system;
+    
+    public UserInterface(MySystem system) {
+        this.system = system;
+    }
     
     public void menu(int option) {
         switch(option) {

@@ -6,6 +6,8 @@
  */
 package ui;
 
+import data.MySystem;
+
 /**
  *
  * @author - Darío Dathaguy - Programación 2 - Número de estudiante: 220839 - Universidad ORT 
@@ -13,7 +15,8 @@ package ui;
  */
 public class Main {
     public static void main(String[] args) {
-        UserInterface ui = new UserInterface();
+        MySystem system = new MySystem();
+        UserInterface ui = new UserInterface(system);
         int option = -1;
       
         while (option != 0){
