@@ -6,6 +6,7 @@
 package obligatorio1;
 
 import java.util.ArrayList;
+import java.util.Collections;
 
 /**
  *
@@ -21,6 +22,7 @@ public class MySystem {
     }
     
     public  ArrayList<Player> getPlayerList(){
+        Collections.sort(this.playerlist);
         return playerlist;
     }
     

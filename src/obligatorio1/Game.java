@@ -22,7 +22,6 @@ public class Game {
     private Player player2;
     private Token[][] grid;
     private boolean finished;
-    private boolean canEnd;
     private ArrayList<String> history = new ArrayList<>(); // Store previous moves
     
     public Game(Player player1, Player player2, int size) {
@@ -53,6 +52,7 @@ public class Game {
      * @throws Exception - The move is invalid
      */
     public void inputMove(String input) throws Exception {
+        input = input.toUpperCase();
         String historyInput = input;
         
         input = input.replace(" ", "");
@@ -61,8 +61,15 @@ public class Game {
         int newY = charToInt(input.charAt(2));
         int newX = this.grid.length - Integer.parseInt(String.valueOf(input.charAt(3)));
         
-        moveToken(curX, curY, newX, newY);
-        this.history.add(historyInput); // This line will only be reached if the move is valid, else an exception will have been thrown
+        historyInput = this.grid[curX][curY].getOwner().getColor() + this.grid[curX][curY].getOwner().getAlias() + ANSI_RESET + " -> " + historyInput;
+        
+        // Checking if the owner of the token is the one playing has to be done here
+        // Since checking it in isMoveValid() will lead to the valid play list being
+        // Incomplete for the other player when checking for a winner
+        if (this.grid[curX][curY].getOwner().isPlaying()) {
+            moveToken(curX, curY, newX, newY);
+            this.history.add(historyInput); // This line will only be reached if the move is valid, else an exception will have been thrown
+        }
     }
     
     /**
@@ -138,64 +145,16 @@ public class Game {
      * @return - The winner
      */
     public Player hasWinner() {
-        Player retVal = checkCheck();
-        
-        if (retVal == null) {
-            if (!stillHasTokensLeft(this.player1)) {
-                retVal = this.player2;
-            } 
-            
-            if (!stillHasTokensLeft(this.player2)) {
-                retVal = this.player1;
-            }
-            
-            if (retVal == null) {
-                if (getPossibleMoveList(this.player1).length() == 0 && this.player1.isPlaying()) {
-                    retVal = this.player2;
-                } 
-                
-                if (getPossibleMoveList(this.player2).length() == 0 && this.player2.isPlaying()) {
-                    retVal = this.player1;
-                }
-            }
+        // Check if a player is out of moves, in which case they are as good as dead
+        if (getPossibleMoveList(this.player1).length() == 0) {
+            return this.player2;
+        }
+
+        if (getPossibleMoveList(this.player2).length() == 0) {
+            return this.player1;
         }
         
-        // Makes sure the player who is losing has a chance to deffend themselves before losing
-        if (!canEnd) {
-            if (retVal != null) {
-                retVal = null;
-                canEnd = !canEnd;
-            }
-        } else {
-            if (retVal == null) {
-                canEnd = !canEnd;
-            }
-        }
-        
-        return retVal;
-    }
-    
-    /**
-     * Returns true if player that is passed still has tokens left in the grid
-     * @param player - The player
-     * @return - Still has tokens?
-     */
-    public boolean stillHasTokensLeft(Player player) {
-        boolean retVal = false;
-        
-        for (int i = 0; i < this.grid.length && !retVal; i++) {
-            for (int j = 0; j < this.grid[i].length && !retVal; j++) {
-                try {
-                    if (this.grid[i][j].getOwner().equals(player)) {
-                        retVal = true;
-                    }
-                } catch (Exception e) {
-                    // Will enter here when there is no token in the 
-                }
-            }
-        }
-        
-        return retVal;
+        return null;
     }
     
     /**
@@ -254,8 +213,6 @@ public class Game {
         ArrayList<String> defensiveMoves = new ArrayList<>();
         ArrayList<String> offensiveMoves = new ArrayList<>();
         
-        String move = "";
-        
         for (int i = 0; i < this.grid.length; i++) {
             for (int j = 0; j < this.grid[i].length; j++) {
                 if (this.grid[i][j] != null) {
@@ -263,61 +220,13 @@ public class Game {
                         for (int m = 0; m < this.grid.length; m++) {
                             for (int n = 0; n < this.grid[m].length; n++) {
                                 if (this.isMoveValid(this.grid[i][j], i, j, m, n)) {
-                                    int val1 = j + 65;
-                                    int val2 = n + 65;
-                                    char a = (char) val1;
-                                    char b = (char) val2;
-                                    move = a + String.valueOf(this.grid.length - i) + " " + b + String.valueOf(this.grid.length - m) + "\n".toUpperCase();
-                                    regularMoves.add(move);
-                                    String aux = move.trim().substring(2);
-
-                                    if (this.player1.isPlaying()) {
-                                        if (this.grid.length == 3) {
-
-                                            if (aux.equals(" B1")) {
-                                                offensiveMoves.add(move);
-                                                regularMoves.remove(move);
-                                            }
-                                            if (aux.equals(" B3")) {
-                                                defensiveMoves.add(move);
-                                                regularMoves.remove(move);
-                                            }
-                                        }
-                                        if (this.grid.length == 5) {
-                                            if (aux.equals(" C1")) {
-                                                offensiveMoves.add(move);
-                                                regularMoves.remove(move);
-                                            }
-                                            if (aux.equals(" C5")) {
-                                                defensiveMoves.add(move);
-                                                regularMoves.remove(move);
-                                            }
-                                        }
-                                        if (this.player2.isPlaying()) {
-                                            if (this.grid.length == 3) {
-                                                if (aux.equals(" B3")) {
-                                                    offensiveMoves.add(move);
-                                                    regularMoves.remove(move);
-                                                }
-                                                if (aux.equals(" B1")) {
-                                                    defensiveMoves.add(move);
-                                                    regularMoves.remove(move);
-                                                }
-                                            }
-                                            if (this.grid.length == 5) {
-                                                if (aux.equals(" C5")) {
-                                                    offensiveMoves.add(move);
-                                                    regularMoves.remove(move);
-                                                }
-                                                if (aux.equals(" C1")) {
-                                                    defensiveMoves.add(move);
-                                                    regularMoves.remove(move);
-                                                }
-                                            }
-
-                                        }
+                                    if (isMoveDefensive(m, n)) {
+                                        defensiveMoves.add(makeMoveString(i, j, m, n));
+                                    } else if (isMoveOffensive(m, n)) {
+                                        offensiveMoves.add(makeMoveString(i, j, m, n));
+                                    } else {
+                                        regularMoves.add(makeMoveString(i, j, m, n));
                                     }
-
                                 }
                             }
                         }
@@ -342,6 +251,46 @@ public class Game {
             retVal += "Movimientos normales\n";
             for (int i = 0; i < regularMoves.size(); i++) {
                 retVal += regularMoves.get(i);
+            }
+        }
+        
+        return retVal;
+    }
+    
+    private boolean isMoveDefensive(int newX, int newY) {
+        boolean retVal;
+        
+        if (this.grid.length == 5) {
+            if (this.player1.isPlaying()) {
+                retVal = newX == 0 && newY == 2;
+            } else {
+                retVal = newX == 4 && newY == 2;
+            }
+        } else {
+            if (this.player1.isPlaying()) {
+                retVal = newX == 0 && newY == 1;
+            } else {
+                retVal = newX == 2 && newY == 1;
+            }
+        }
+        
+        return retVal;
+    }
+    
+    private boolean isMoveOffensive(int newX, int newY) {
+        boolean retVal;
+        
+        if (this.grid.length == 5) {
+            if (this.player1.isPlaying()) {
+                retVal = newX == 4 && newY == 2;
+            } else {
+                retVal = newX == 0 && newY == 2;
+            }
+        } else {
+            if (this.player1.isPlaying()) {
+                retVal = newX == 2 && newY == 1;
+            } else {
+                retVal = newX == 0 && newY == 1;
             }
         }
         
@@ -472,6 +421,8 @@ public class Game {
         boolean isMoveDiagonal = curX != newX && curY != newY && Math.abs(newX-curX) == Math.abs(newY-curY);
         boolean isMoveHorizontal = curX == newX;
         boolean isMoveVertical = curY == newY;
+        boolean hasToDefend = !token.getOwner().equals(checkCheck()) && checkCheck() != null;
+        boolean isMoveDefensive = isMoveDefensive(newX, newY);
         
         if (removeColorFromString(token.toString()).equals("T")) {
             // Make sure move is either vertical or horizontal and that the token didnt go over any other token
@@ -482,7 +433,7 @@ public class Game {
         }
         
         // If the move is valid and the token that is being moved belongs to the player that is playing return true
-        return (!notMoving && retVal && isDestinationValid(newX, newY) && token.getOwner().isPlaying());
+        return (!notMoving && (hasToDefend == isMoveDefensive) && retVal && isDestinationValid(newX, newY));
     }
     
     /**
@@ -567,16 +518,8 @@ public class Game {
             if (this.grid[newX][newY].getOwner().isPlaying()) {
                 retVal = false;
             } else {
-                // To remove the other player's tokens, those have to be in your goal
-                if (this.player1.isPlaying()) {
-                    // Check the goal up top
-                    // If the destination is not the goal then the destination is invalid
-                    retVal = !(newX != 0 || newY != (this.grid.length - 1) / 2);
-                } else {
-                    // Check the goal down below
-                    // If the destionation is not the goal then the destination is invalid
-                    retVal = !(newX != this.grid.length - 1 || newY != (this.grid.length - 1) / 2);
-                }
+                // To remove the other player's tokens, those have to be in some goal
+                retVal = !(newX != 0 || newY != (this.grid.length - 1) / 2) || !(newX != this.grid.length - 1 || newY != (this.grid.length - 1) / 2);
             }
         }
         
@@ -608,6 +551,10 @@ public class Game {
      */
     private int charToInt(char c) {
         return ((int) c) - 65;
+    }
+    
+    private String makeMoveString(int curX, int curY, int newX, int newY) {
+        return String.valueOf((char) (curY + 65)) + (this.grid.length - curX) + " " + String.valueOf((char) (newY + 65)) + (this.grid.length - newX) + "\n";
     }
     
     /**

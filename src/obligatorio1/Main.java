@@ -5,8 +5,6 @@
  * and open the template in the editor.
  */
 package obligatorio1;
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Scanner;
 
 /**
@@ -15,9 +13,6 @@ import java.util.Scanner;
  * @author - Álvaro Nicoli - Programación 2 - Número de estudiante: 220159 - Universidad ORT
  */
 public class Main {
-    /**
-     * @param args the command line arguments
-     */
     public static void main(String[] args) {
       System.out.println("Bienvenido. Baila como el Papu");
       MySystem system = new MySystem();
@@ -36,7 +31,6 @@ public class Main {
                     System.out.println("No hay jugadores registrados aún...\n\n");
                 }
                 
-                // Collections.sort(system.getPlayerList());
                 for(int i=0; i < system.getPlayerList().size(); i++){
                     System.out.println(system.getPlayerList().get(i) + "\n");
                 }
@@ -51,9 +45,27 @@ public class Main {
                 System.out.println("Seleccione el jugador 1");
                 Player j1 = selectPlayer(system, -1);
                 System.out.println("Seleccione el jugador 2");
-                Player j2 = selectPlayer(system, system.getPlayerList().indexOf(j1));
+                Player j2 = null;
+                
+                do {
+                    j2 = selectPlayer(system, system.getPlayerList().indexOf(j1));
+                    
+                    if (j1.equals(j2)) {
+                        System.out.println("No pueden ser ambos el mismo jugador!");
+                    }
+                } while (j1.equals(j2));
 
-                Game game = new Game(j1, j2, inputInt("Seleccione el tamano de tablero (3 o 5) >> ", 3, 5));
+                int gridSize = 2;
+                
+                do {
+                    gridSize = inputInt("Seleccione el tamano de tablero (3 o 5) >> ", 3, 5);
+                    
+                    if (gridSize != 3 && gridSize != 5) {
+                        System.out.println("Error, intente nuevamente");
+                    }
+                } while (gridSize != 3 && gridSize != 5);
+                
+                Game game = new Game(j1, j2, gridSize);
                 boolean rotateGrid = false;
 
                 while (game.isPlaying()) {
@@ -115,7 +127,7 @@ public class Main {
     public static void createPlayer(MySystem system) {
         Player player = new Player(inputString("Como te llamas? >> "), inputString("Elige un alias >> "), inputInt("Ingresa tu edad >> ", 1, 120));
         
-        if (system.getPlayerList().contains(player)) {
+        while (system.getPlayerList().contains(player)) {
             player.setAlias(inputString("Tu alias ya está en uso... Elige otro >> "));
         }
         
@@ -125,6 +137,7 @@ public class Main {
     /**
      * Lets the user choose a player from the list to play as
      * @param system - The instance of MySystem that contains the list of players
+     * @param alreadyChosen - The index of the player that was chosen as player1 so that player2 is not the same - Use -1 if choosing player1
      * @return - The player chosen by the user
      */
     public static Player selectPlayer(MySystem system, int alreadyChosen) {
@@ -135,6 +148,7 @@ public class Main {
         }
         
         int selected = inputInt("Selecciona un jugador >> ", 1, system.getPlayerList().size());
+        
         return system.getPlayerList().get(selected - 1);
     }
 
@@ -177,6 +191,10 @@ public class Main {
             } finally {
                 // Clean the buffer
                 input.nextLine();
+            }
+            
+            if (retVal > max || retVal < min) {
+                System.out.println("Valor fuera de los limites, intenta nuevamente...");
             }
         } while (retVal > max || retVal < min);
 
