@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package obligatorio1;
+package data;
 
 /**
  *
@@ -70,6 +70,10 @@ public class Player implements Comparable<Player> {
 
     public String getAlias() {
         return alias;
+    }
+    
+    public int getAge() {
+        return age;
     }
 
     public int getGamesPlayed() {

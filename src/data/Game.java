@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package obligatorio1;
+package data;
 
 import java.util.ArrayList;
 
@@ -257,6 +257,12 @@ public class Game {
         return retVal;
     }
     
+    /**
+     * By means of the destination of a move determines whether it is defensive
+     * @param newX - X pos
+     * @param newY - Y pos
+     * @return - Is the destination the player's goal?
+     */
     private boolean isMoveDefensive(int newX, int newY) {
         boolean retVal;
         
@@ -277,6 +283,13 @@ public class Game {
         return retVal;
     }
     
+    /**
+     * By means of the destination of a move determines whether it is offensive
+     * If its destination is the opponent's goal it is true
+     * @param newX - X pos
+     * @param newY - Y pos
+     * @return - Is the destination the opponent's goal?
+     */
     private boolean isMoveOffensive(int newX, int newY) {
         boolean retVal;
         
@@ -553,6 +566,14 @@ public class Game {
         return ((int) c) - 65;
     }
     
+    /**
+     * Takes coordinates and makes the move string
+     * @param curX - Current X axis position of the token to move
+     * @param curY - Current Y axis position of the token to move
+     * @param newX - New X axis position of the token to move
+     * @param newY - New Y axis position of the token to move
+     * @return - The move String like "B1 B2"
+     */
     private String makeMoveString(int curX, int curY, int newX, int newY) {
         return String.valueOf((char) (curY + 65)) + (this.grid.length - curX) + " " + String.valueOf((char) (newY + 65)) + (this.grid.length - newX) + "\n";
     }

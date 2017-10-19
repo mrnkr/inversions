@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package obligatorio1;
+package data;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -15,7 +15,16 @@ import java.util.Collections;
  */
 
 public class MySystem {
-    private  ArrayList<Player> playerlist = new ArrayList<>();
+    private ArrayList<Player> playerlist = new ArrayList<>();
+    private Game game;
+    
+    public void startNewGame(Player player1, Player player2, int gridSize) {
+        this.game = new Game(player1, player2, gridSize);
+    }
+    
+    public Game getRunningGame() {
+        return this.game;
+    }
     
     public void setPlayerList(ArrayList<Player> players){
         this.playerlist = players;
