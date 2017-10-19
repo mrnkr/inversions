@@ -54,8 +54,8 @@ public class Game {
     
     /**
      * Populate the grid with the tokens
-     * @param player1 - Player 1
-     * @param player2 - Player 2
+     * @param player1
+     * @param player2
      */
     public void prepareGrid(Player player1, Player player2) {
         for (int i = 0; i < this.grid.length; i++) {
