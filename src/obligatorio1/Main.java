@@ -20,13 +20,13 @@ public class Main {
       
       while (option == 0){
         switch (inputString("\n\n1- Registrar jugador"
-                      + "\n2- Estadisticas de jugadores"
-                      + "\n3- Jugar"
+                      + "\n2- Jugar"
+                      + "\n3- Ranking"
                       + "\n4- Salir\n\n")) {
             case "1":
                 createPlayer(system);
                 break;
-            case "2":
+            case "3":
                 if(system.getPlayerList().isEmpty()) {
                     System.out.println("No hay jugadores registrados aún...\n\n");
                 }
@@ -36,7 +36,7 @@ public class Main {
                 }
                 
                 break;
-            case "3":
+            case "2":
                 if (system.getPlayerList().size() < 2) {
                     System.out.println("No hay suficientes jugadores registrados aún...\n\n");
                     break;
