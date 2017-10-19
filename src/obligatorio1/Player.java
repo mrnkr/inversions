@@ -119,14 +119,26 @@ public class Player implements Comparable<Player> {
 
     @Override
     public int compareTo(Player p) {
-        int retVal = 0;
-        
-        if (this.wins > p.getWins()) {
-            retVal = 1;
-        }
+        int retVal;
         
         if (this.wins < p.getWins()) {
+            retVal = 1;
+        } else if (this.wins > p.getWins()) {
             retVal = -1;
+        } else {
+            if (this.draws < p.getDraws()) {
+                retVal = 1;
+            } else if (this.draws > p.getDraws()) {
+                retVal = -1;
+            } else {
+                if (this.gamesPlayed < p.getGamesPlayed()) {
+                    retVal = 1;
+                } else if (this.gamesPlayed > p.getGamesPlayed()) {
+                    retVal = -1;
+                } else {
+                    retVal = 0;
+                }
+            }
         }
         
         return retVal;
