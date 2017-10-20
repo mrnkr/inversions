@@ -54,8 +54,8 @@ public class UserInterface {
                 createPlayer();
                 break;
             case 2: // Play
-                if (!this.system.hasPlayers()) {
-                    System.out.println("No hay jugadores registrados...");
+                if (this.system.getPlayerList().size() < 2) {
+                    System.out.println("No hay suficientes jugadores registrados...");
                     break;
                 }
                 
