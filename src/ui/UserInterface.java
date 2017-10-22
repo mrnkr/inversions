@@ -35,7 +35,7 @@ import java.util.Scanner;
  */
 public class UserInterface {
     public static final String MENU_PROMPT = "╔═════════════════════════╦═══════════╗\n" +
-                                             "║     * Inveriones *      ║ Salir - 0 ║\n" +
+                                             "║     * Inversiones *     ║ Salir - 0 ║\n" +
                                              "╠═════════════════════════╩═══════════╣\n" +
                                              "║ 1. Registrar jugador                ║\n" +
                                              "║ 2. Jugar                            ║\n" +
