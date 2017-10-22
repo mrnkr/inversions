@@ -39,7 +39,6 @@ public class Token {
         this.setPosition(x, y);
     }
     
-    //Métodos Set
     public void setOwner(Player player) {
         owner = player;
     }
@@ -50,8 +49,6 @@ public class Token {
         this.type = !this.type;
     }
 
-    
-    //Métodos Get
     public Player getOwner() {
         return owner;
     }
