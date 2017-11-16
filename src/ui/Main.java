@@ -33,13 +33,18 @@ import data.MySystem;
 public class Main {
     public static void main(String[] args) {
         MySystem system = new MySystem();
-        UserInterface ui = new UserInterface(system);
+        
+        java.awt.EventQueue.invokeLater(() -> {
+            new MainMenu(system).setVisible(true);
+        });
+        
+        /* UserInterface ui = new UserInterface(system);
         int option = -1;
       
         while (option != 0){
             option = ui.inputInt(UserInterface.MENU_PROMPT, 0, 3);
             ui.menu(option);
-        }
+        } */
     }
 }
 

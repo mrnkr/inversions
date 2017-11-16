@@ -69,6 +69,8 @@ public class UserInterface {
                 ranking();
                 break;
             case 0: // Exit
+                this.system.saveGame();
+                
                 break;
         }
     }
@@ -79,11 +81,9 @@ public class UserInterface {
     public void createPlayer() {
         Player player = new Player(inputString("Como te llamas? >> "), inputString("Elige un alias >> "), inputInt("Ingresa tu edad >> ", 1, 120));
         
-        while (this.system.getPlayerList().contains(player)) {
+        while (!this.system.addPlayer(player)) {
             player.setAlias(inputString("Tu alias ya está en uso... Elige otro >> "));
         }
-        
-        this.system.getPlayerList().add(player);
     }
     
     /**

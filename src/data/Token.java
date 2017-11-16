@@ -23,12 +23,14 @@
  */
 package data;
 
+import java.io.Serializable;
+
 /**
  *
  * @author - Darío Dathaguy - Programación 2 - Número de estudiante: 220839 - Universidad ORT 
  * @author - Álvaro Nicoli - Programación 2 - Número de estudiante: 220159 - Universidad ORT
  */
-public class Token {
+public class Token implements Serializable {
     private Player owner;
     private boolean type = false; // true = Tower - false = Bishop
     private int x;

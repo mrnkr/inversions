@@ -23,12 +23,14 @@
  */
 package data;
 
+import java.io.Serializable;
+
 /**
  *
  * @author - Darío Dathaguy - Programación 2 - Número de estudiante: 220839 - Universidad ORT 
  * @author - Álvaro Nicoli - Programación 2 - Número de estudiante: 220159 - Universidad ORT
  */
-public class Player implements Comparable<Player> {
+public class Player implements Comparable<Player>, Serializable {
     private String name;
     private String alias;
     private int age;

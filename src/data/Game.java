@@ -23,6 +23,7 @@
  */
 package data;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 
 /**
@@ -30,17 +31,17 @@ import java.util.ArrayList;
  * @author - Darío Dathaguy - Programación 2 - Número de estudiante: 220839 - Universidad ORT 
  * @author - Álvaro Nicoli - Programación 2 - Número de estudiante: 220159 - Universidad ORT
  */
-public class Game {
-    public static final String ANSI_RESET = "\u001B[0m";
-    public static final String ANSI_RED = "\u001B[31m";
-    public static final String ANSI_GREEN = "\u001B[32m";
-    public static final String ANSI_BLUE = "\u001B[34m";
+public class Game implements Serializable {
+    public static final transient String ANSI_RESET = "\u001B[0m";
+    public static final transient String ANSI_RED = "\u001B[31m";
+    public static final transient String ANSI_GREEN = "\u001B[32m";
+    public static final transient String ANSI_BLUE = "\u001B[34m";
     
     private Player player1;
     private Player player2;
     private Token[][] grid;
     private boolean finished;
-    private ArrayList<String> history = new ArrayList<>(); // Store previous moves
+    private ArrayList<String> history; // Store previous moves
     
     public Game(Player player1, Player player2, int size) {
         this.player1 = player1;
@@ -50,6 +51,8 @@ public class Game {
         this.player2.setColor(ANSI_BLUE);
         this.grid = new Token[size][size];
         this.prepareGrid(player1, player2);
+        
+        this.history = new ArrayList<>();
     }
     
     /**
@@ -573,6 +576,10 @@ public class Game {
     private void endRound() {
         this.player1.toggleTurn();
         this.player2.toggleTurn();
+    }
+    
+    public int getGridSize() {
+        return this.grid.length;
     }
     
     /**

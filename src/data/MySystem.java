@@ -23,6 +23,11 @@
  */
 package data;
 
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
 
@@ -32,28 +37,80 @@ import java.util.Collections;
  * @author - Álvaro Nicoli - Programación 2 - Número de estudiante: 220159 - Universidad ORT
  */
 
-public class MySystem {
-    private ArrayList<Player> playerlist = new ArrayList<>();
+public class MySystem implements Serializable {
+    private static final transient String SAVE_FILE = "/tmp/inversions-save-data.txt";
+    
+    private ArrayList<Player> playerList;
     private Game game;
+    private transient boolean isMusicPlaying;
+    
+    /**
+     * The constructor will attempt to load a saved instance before creating a new one
+     */
+    public MySystem() {
+        try (ObjectInputStream in = new ObjectInputStream(new FileInputStream(SAVE_FILE))) {
+            MySystem sys = (MySystem) in.readObject();
+            this.playerList = sys.playerList;
+            this.game = sys.game;
+        } catch (Exception e) {
+            this.playerList = new ArrayList<>();
+        }
+        
+        this.isMusicPlaying = true;
+    }
     
     public void startNewGame(Player player1, Player player2, int gridSize) {
         this.game = new Game(player1, player2, gridSize);
     }
     
+    /**
+     * Returns the current game instance
+     * @return - The game if there is an ongoing one - else null
+     */
     public Game getRunningGame() {
+        if (this.game.isPlaying()) {
+            this.game = null;
+        }
+        
         return this.game;
     }
     
-    public void setPlayerList(ArrayList<Player> players){
-        this.playerlist = players;
+    public boolean addPlayer(Player player) {
+        if (this.playerList.contains(player)) {
+            return false;
+        }
+        
+        this.playerList.add(player);
+        return true;
     }
     
-    public  ArrayList<Player> getPlayerList(){
-        Collections.sort(this.playerlist);
-        return playerlist;
+    public ArrayList<Player> getPlayerList(){
+        Collections.sort(this.playerList);
+        return playerList;
     }
     
     public boolean hasPlayers(){
         return !this.getPlayerList().isEmpty();
+    }
+    
+    public void toggleMusicPlaying() {
+        this.isMusicPlaying = !this.isMusicPlaying;
+    }
+    
+    public boolean getIsMusicPlaying() {
+        return this.isMusicPlaying;
+    }
+    
+    /**
+     * Saves the instance of MySystem to a txt file
+     * @return - Whether the MySystem instance could successfully be saved
+     */
+    public boolean saveGame() {
+        try (ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream(SAVE_FILE))) {
+            out.writeObject(this);
+            return true;
+        } catch (Exception e) {
+            return false;
+        }
     }
 }
