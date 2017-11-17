@@ -68,8 +68,10 @@ public class MySystem implements Serializable {
      * @return - The game if there is an ongoing one - else null
      */
     public Game getRunningGame() {
-        if (this.game.isPlaying()) {
-            this.game = null;
+        if (this.game != null) {
+            if (!this.game.isPlaying()) {
+                this.game = null;
+            }
         }
         
         return this.game;

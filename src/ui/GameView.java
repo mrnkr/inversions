@@ -23,9 +23,22 @@
  */
 package ui;
 
+import uihelpers.GridButtonListener;
+import data.Game;
 import data.MySystem;
+import data.Player;
+import data.Token;
+import java.awt.Color;
 import java.awt.GridLayout;
+import javax.swing.ImageIcon;
+import javax.swing.Icon;
 import javax.swing.JButton;
+import javax.swing.JColorChooser;
+import javax.swing.JFileChooser;
+import javax.swing.JOptionPane;
+import javax.swing.filechooser.FileNameExtensionFilter;
+import jiconfont.icons.FontAwesome;
+import jiconfont.swing.IconFontSwing;
 
 /**
  *
@@ -34,17 +47,31 @@ import javax.swing.JButton;
 public class GameView extends javax.swing.JFrame {
     private JButton[][] myButtonGrid;
     private MySystem system;
+    
+    private Game game;
+    private boolean rotateGrid;
+    private String lastClickedPosition; // When clicking an origin button its x postion will be stored here
+    
+    private String blackTowerImageUrl;
+    private String blackBishopImageUrl;
+    private String whiteTowerImageUrl;
+    private String whiteBishopImageUrl;
+    
+    private Color backgroundColor;
 
     /**
      * Creates new form GameView
+     * @param system
      */
     public GameView(MySystem system) {
         this.system = system;
+        this.game = system.getRunningGame();
+        this.lastClickedPosition = "";
         
         initComponents();
-        // prepareGrid(this.system.getRunningGame().getGridSize());
-        
-        prepareGrid(3);
+        setButtonIcons();
+        preloadImages();
+        prepareGrid(this.game.getGridSize());
     }
 
     /**
@@ -57,40 +84,240 @@ public class GameView extends javax.swing.JFrame {
     private void initComponents() {
 
         myGamePanel = new javax.swing.JPanel();
+        jMenuBar1 = new javax.swing.JMenuBar();
+        jMenu1 = new javax.swing.JMenu();
+        mySurrenderOption = new javax.swing.JMenuItem();
+        myTruceOption = new javax.swing.JMenuItem();
+        myRotateGridOption = new javax.swing.JMenuItem();
+        jMenu3 = new javax.swing.JMenu();
+        myChangeBlackTowerOption = new javax.swing.JMenuItem();
+        myChangeBlackBishopOption = new javax.swing.JMenuItem();
+        myChangeWhiteTowerOption = new javax.swing.JMenuItem();
+        myChangeWhiteBishopOption = new javax.swing.JMenuItem();
+        myChangeBackgroundColorOption = new javax.swing.JMenuItem();
+        jMenu2 = new javax.swing.JMenu();
+        myHelpOption = new javax.swing.JMenuItem();
 
-        setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
+        setTitle("Juego");
+        getContentPane().setLayout(new javax.swing.BoxLayout(getContentPane(), javax.swing.BoxLayout.LINE_AXIS));
 
         javax.swing.GroupLayout myGamePanelLayout = new javax.swing.GroupLayout(myGamePanel);
         myGamePanel.setLayout(myGamePanelLayout);
         myGamePanelLayout.setHorizontalGroup(
             myGamePanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 358, Short.MAX_VALUE)
+            .addGap(0, 422, Short.MAX_VALUE)
         );
         myGamePanelLayout.setVerticalGroup(
             myGamePanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 358, Short.MAX_VALUE)
+            .addGap(0, 355, Short.MAX_VALUE)
         );
 
-        javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
-        getContentPane().setLayout(layout);
-        layout.setHorizontalGroup(
-            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(layout.createSequentialGroup()
-                .addGap(23, 23, 23)
-                .addComponent(myGamePanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(258, Short.MAX_VALUE))
-        );
-        layout.setVerticalGroup(
-            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(layout.createSequentialGroup()
-                .addGap(25, 25, 25)
-                .addComponent(myGamePanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(182, Short.MAX_VALUE))
-        );
+        getContentPane().add(myGamePanel);
+
+        jMenu1.setText("Juego");
+
+        mySurrenderOption.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_X, java.awt.event.InputEvent.CTRL_MASK));
+        mySurrenderOption.setText("Me Rindo");
+        mySurrenderOption.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                mySurrenderOptionActionPerformed(evt);
+            }
+        });
+        jMenu1.add(mySurrenderOption);
+
+        myTruceOption.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_E, java.awt.event.InputEvent.CTRL_MASK));
+        myTruceOption.setText("Ofrecer Empate");
+        myTruceOption.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                myTruceOptionActionPerformed(evt);
+            }
+        });
+        jMenu1.add(myTruceOption);
+
+        myRotateGridOption.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_R, java.awt.event.InputEvent.CTRL_MASK));
+        myRotateGridOption.setText("Rotar Tablero");
+        myRotateGridOption.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                myRotateGridOptionActionPerformed(evt);
+            }
+        });
+        jMenu1.add(myRotateGridOption);
+
+        jMenuBar1.add(jMenu1);
+
+        jMenu3.setText("Personalizar");
+
+        myChangeBlackTowerOption.setText("Cambiar Torre Negra");
+        myChangeBlackTowerOption.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                myChangeBlackTowerOptionActionPerformed(evt);
+            }
+        });
+        jMenu3.add(myChangeBlackTowerOption);
+
+        myChangeBlackBishopOption.setText("Cambiar Alfil Negro");
+        myChangeBlackBishopOption.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                myChangeBlackBishopOptionActionPerformed(evt);
+            }
+        });
+        jMenu3.add(myChangeBlackBishopOption);
+
+        myChangeWhiteTowerOption.setText("Cambiar Torre Blanca");
+        myChangeWhiteTowerOption.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                myChangeWhiteTowerOptionActionPerformed(evt);
+            }
+        });
+        jMenu3.add(myChangeWhiteTowerOption);
+
+        myChangeWhiteBishopOption.setText("Cambiar Alfil Blanco");
+        myChangeWhiteBishopOption.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                myChangeWhiteBishopOptionActionPerformed(evt);
+            }
+        });
+        jMenu3.add(myChangeWhiteBishopOption);
+
+        myChangeBackgroundColorOption.setText("Cambiar fondo del tablero");
+        myChangeBackgroundColorOption.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                myChangeBackgroundColorOptionActionPerformed(evt);
+            }
+        });
+        jMenu3.add(myChangeBackgroundColorOption);
+
+        jMenuBar1.add(jMenu3);
+
+        jMenu2.setText("Ayuda");
+
+        myHelpOption.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_Y, java.awt.event.InputEvent.CTRL_MASK));
+        myHelpOption.setText("Posibles Movimientos");
+        myHelpOption.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                myHelpOptionActionPerformed(evt);
+            }
+        });
+        jMenu2.add(myHelpOption);
+
+        jMenuBar1.add(jMenu2);
+
+        setJMenuBar(jMenuBar1);
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
+    private void mySurrenderOptionActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_mySurrenderOptionActionPerformed
+        int confirm = JOptionPane.showConfirmDialog(this, "Acepta el oponente la rendicion?", "Me rindo", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
+        
+        if (confirm == JOptionPane.YES_OPTION) {
+            this.game.surrender();
+            this.dispose();
+        }
+    }//GEN-LAST:event_mySurrenderOptionActionPerformed
+
+    private void myTruceOptionActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_myTruceOptionActionPerformed
+        int confirm = JOptionPane.showConfirmDialog(this, "Acepta el oponente la tregua?", "Tregua", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
+        
+        if (confirm == JOptionPane.YES_OPTION) {
+            this.game.draw();
+            this.dispose();
+        }
+    }//GEN-LAST:event_myTruceOptionActionPerformed
+
+    private void myChangeBlackTowerOptionActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_myChangeBlackTowerOptionActionPerformed
+        String selectedFileUrl = selectImageFile();
+        
+        if (!selectedFileUrl.equals("")) {
+            this.blackTowerImageUrl = selectedFileUrl;
+        
+            refreshGrid();
+        }
+    }//GEN-LAST:event_myChangeBlackTowerOptionActionPerformed
+
+    private void myChangeBlackBishopOptionActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_myChangeBlackBishopOptionActionPerformed
+        String selectedFileUrl = selectImageFile();
+        
+        if (!selectedFileUrl.equals("")) {
+            this.blackBishopImageUrl = selectedFileUrl;
+        
+            refreshGrid();
+        }
+    }//GEN-LAST:event_myChangeBlackBishopOptionActionPerformed
+
+    private void myChangeWhiteTowerOptionActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_myChangeWhiteTowerOptionActionPerformed
+        String selectedFileUrl = selectImageFile();
+        
+        if (!selectedFileUrl.equals("")) {
+            this.whiteTowerImageUrl = selectedFileUrl;
+        
+            refreshGrid();
+        }
+    }//GEN-LAST:event_myChangeWhiteTowerOptionActionPerformed
+
+    private void myChangeWhiteBishopOptionActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_myChangeWhiteBishopOptionActionPerformed
+        String selectedFileUrl = selectImageFile();
+        
+        if (!selectedFileUrl.equals("")) {
+            this.whiteBishopImageUrl = selectedFileUrl;
+        
+            refreshGrid();
+        }
+    }//GEN-LAST:event_myChangeWhiteBishopOptionActionPerformed
+
+    private String selectImageFile() {
+        JFileChooser chooser = new JFileChooser();
+        FileNameExtensionFilter filter = new FileNameExtensionFilter(
+                "JPG, PNG & GIF Images", "jpg", "png", "gif");
+        chooser.setFileFilter(filter);
+        
+        int returnVal = chooser.showOpenDialog(null);
+        if(returnVal == JFileChooser.APPROVE_OPTION) {
+            return chooser.getSelectedFile().getPath();
+        }
+        
+        return "";
+    }
+    
+    private void myHelpOptionActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_myHelpOptionActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_myHelpOptionActionPerformed
+
+    private void myRotateGridOptionActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_myRotateGridOptionActionPerformed
+        this.rotateGrid = !this.rotateGrid;
+        refreshGrid();
+    }//GEN-LAST:event_myRotateGridOptionActionPerformed
+
+    private void myChangeBackgroundColorOptionActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_myChangeBackgroundColorOptionActionPerformed
+        backgroundColor = JColorChooser.showDialog(this, "Elige un color", Color.RED);
+        
+        refreshGrid();
+    }//GEN-LAST:event_myChangeBackgroundColorOptionActionPerformed
+
+    private void setButtonIcons() {
+        IconFontSwing.register(FontAwesome.getIconFont());
+        
+        Icon surrenderIcon = IconFontSwing.buildIcon(FontAwesome.FLAG_O, 15);
+        mySurrenderOption.setIcon(surrenderIcon);
+        
+        Icon truceIcon = IconFontSwing.buildIcon(FontAwesome.HANDSHAKE_O, 15);
+        myTruceOption.setIcon(truceIcon);
+        
+        Icon rotateIcon = IconFontSwing.buildIcon(FontAwesome.UNDO, 15);
+        myRotateGridOption.setIcon(rotateIcon);
+        
+        Icon helpIcon = IconFontSwing.buildIcon(FontAwesome.QUESTION_CIRCLE_O, 15);
+        myHelpOption.setIcon(helpIcon);
+    }
+    
+    public void preloadImages() {
+        this.blackTowerImageUrl = "/res/tower_black.png";
+        this.blackBishopImageUrl = "/res/bishop_black.png";
+        this.whiteTowerImageUrl = "/res/tower_white.png";
+        this.whiteBishopImageUrl = "/res/bishop_white.png";
+    }
+    
     private void prepareGrid(int size) {
         myGamePanel.setLayout(new GridLayout(size, size));
         myButtonGrid = new JButton[size][size];
@@ -101,17 +328,114 @@ public class GameView extends javax.swing.JFrame {
                 
                 GridButtonListener gridButtonListener = new GridButtonListener(i, j);
                 gridButtonListener.setGridButtonInterface((int x, int y) -> {
-                    System.out.println("x= " + x + "\ny= " + y);
+                    if (this.lastClickedPosition.equals("")) {
+                        this.lastClickedPosition = makeMoveString(x, y);
+                    } else {
+                        performMove(this.lastClickedPosition, makeMoveString(x, y));
+                        this.lastClickedPosition = "";
+                    }
                 });
                 
-                jButton.addActionListener(gridButtonListener); 
+                jButton.addActionListener(gridButtonListener);
+                jButton.setOpaque(true);
+                
+                if (this.game.getGrid()[i][j] != null) {
+                    jButton.setIcon(makeTokenIcon(this.game.getGrid()[i][j]));
+                }
+                
                 myGamePanel.add(jButton); 
                 myButtonGrid[i][j] = jButton; 
             }
         }
     }
+    
+    private void performMove(String curPos, String newPos) {
+        try {
+            this.game.inputMove(curPos + " " + newPos);
+            refreshGrid();
+            
+            Player winner = this.game.hasWinner();
+            if (winner != null) {
+                this.game.endGame(winner);
+                JOptionPane.showMessageDialog(this, winner.getAlias() + " gano!", "Ganador!", JOptionPane.INFORMATION_MESSAGE);
+                this.dispose();
+            }
+        } catch (Exception ex) {
+            JOptionPane.showMessageDialog(this, "Movimiento invalido", "Error", JOptionPane.ERROR_MESSAGE);
+        }
+    }
+    
+    private String makeMoveString(int x, int y) {
+        if (this.rotateGrid) {
+            x = game.getGridSize() - x - 1;
+            y = game.getGridSize() - y - 1;
+        }
+        
+        return String.valueOf((char) (y + 65)) + (game.getGridSize() - x);
+    }
+    
+    private void refreshGrid() {
+        Token[][] grid = this.rotateGrid ? this.game.rotateGrid() : this.game.getGrid();
+        
+        for (int i = 0; i < this.myButtonGrid.length; i++) {
+            for (int j = 0; j < this.myButtonGrid.length; j++) {
+                if (grid[i][j] != null) {
+                    this.myButtonGrid[i][j].setIcon(makeTokenIcon(grid[i][j]));
+                } else {
+                    this.myButtonGrid[i][j].setIcon(null);
+                }
+                
+                this.myButtonGrid[i][j].setBackground(backgroundColor);
+            }
+        }
+    }
+    
+    private ImageIcon makeTokenIcon(Token token) {
+        if (token.getOwner().equals(this.game.getPlayer1())) {
+            if (token.getType()) {
+                if (this.blackTowerImageUrl.contains("/res")) {
+                    return new ImageIcon(getClass().getResource(this.blackTowerImageUrl));
+                } else {
+                    return new ImageIcon(this.blackTowerImageUrl);
+                }
+            } else {
+                if (this.blackBishopImageUrl.contains("/res")) {
+                    return new ImageIcon(getClass().getResource(this.blackBishopImageUrl));
+                } else {
+                    return new ImageIcon(this.blackBishopImageUrl);
+                }
+            }
+        } else {
+            if (token.getType()) {
+                if (this.whiteTowerImageUrl.contains("/res")) {
+                    return new ImageIcon(getClass().getResource(this.whiteTowerImageUrl));
+                } else {
+                    return new ImageIcon(this.whiteTowerImageUrl);
+                }
+            } else {
+                if (this.whiteBishopImageUrl.contains("/res")) {
+                    return new ImageIcon(getClass().getResource(this.whiteBishopImageUrl));
+                } else {
+                    return new ImageIcon(this.whiteBishopImageUrl);
+                }
+            }
+        }
+    }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JMenu jMenu1;
+    private javax.swing.JMenu jMenu2;
+    private javax.swing.JMenu jMenu3;
+    private javax.swing.JMenuBar jMenuBar1;
+    private javax.swing.JMenuItem myChangeBackgroundColorOption;
+    private javax.swing.JMenuItem myChangeBlackBishopOption;
+    private javax.swing.JMenuItem myChangeBlackTowerOption;
+    private javax.swing.JMenuItem myChangeWhiteBishopOption;
+    private javax.swing.JMenuItem myChangeWhiteTowerOption;
     private javax.swing.JPanel myGamePanel;
+    private javax.swing.JMenuItem myHelpOption;
+    private javax.swing.JMenuItem myRotateGridOption;
+    private javax.swing.JMenuItem mySurrenderOption;
+    private javax.swing.JMenuItem myTruceOption;
     // End of variables declaration//GEN-END:variables
 }

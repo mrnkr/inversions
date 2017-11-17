@@ -55,6 +55,10 @@ public class Token implements Serializable {
         return owner;
     }
 
+    public boolean getType() {
+        return this.type;
+    }
+    
     @Override
     public String toString() {
         return this.owner.getColor() + (type ? "T" : "A");

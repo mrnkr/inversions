@@ -92,7 +92,7 @@ public class MainMenu extends javax.swing.JFrame {
             }
         });
 
-        myLogoLabel.setIcon(new javax.swing.ImageIcon("/Users/MrNKR/NetBeansProjects/inversions/res/logo.png")); // NOI18N
+        myLogoLabel.setIcon(new javax.swing.ImageIcon(getClass().getResource("/res/logo.png"))); // NOI18N
 
         myToggleMusicButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -157,7 +157,13 @@ public class MainMenu extends javax.swing.JFrame {
     }
     
     private void myRankingButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_myRankingButtonActionPerformed
-        // TODO add your handling code here:
+        if (!this.system.hasPlayers()) {
+            System.out.println("No hay jugadores registrados aún...\n\n");
+        }
+
+        for (int i=0; i < this.system.getPlayerList().size(); i++) {
+            System.out.println(this.system.getPlayerList().get(i) + "\n");
+        }
     }//GEN-LAST:event_myRankingButtonActionPerformed
 
     private void myToggleMusicButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_myToggleMusicButtonActionPerformed
@@ -176,14 +182,18 @@ public class MainMenu extends javax.swing.JFrame {
     private void myRegisterPlayerButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_myRegisterPlayerButtonActionPerformed
         java.awt.EventQueue.invokeLater(() -> {
             // this.setEnabled(false);
-            new UserRegistrationForm(system).setVisible(true);
+            new UserRegistrationForm(this.system).setVisible(true);
         });
     }//GEN-LAST:event_myRegisterPlayerButtonActionPerformed
 
     private void myPlayButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_myPlayButtonActionPerformed
         java.awt.EventQueue.invokeLater(() -> {
             // this.setEnabled(false);
-            new GameView(system).setVisible(true);
+            if (this.system.getRunningGame() != null) {
+                new GameView(this.system).setVisible(true);
+            } else {
+                new GameSetupForm(this.system).setVisible(true);
+            }
         });
     }//GEN-LAST:event_myPlayButtonActionPerformed
 

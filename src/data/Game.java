@@ -417,6 +417,10 @@ public class Game implements Serializable {
         return retVal;
     }
     
+    public Token[][] getGrid() {
+        return this.grid;
+    }
+    
     /**
      * Checks if a move is valid and commits it to the grid
      * @param curX - Current X axis position of the token to move
@@ -580,6 +584,14 @@ public class Game implements Serializable {
     
     public int getGridSize() {
         return this.grid.length;
+    }
+    
+    public Player getPlayer1() {
+        return this.player1;
+    }
+    
+    public Player getPlayer2() {
+        return this.player2;
     }
     
     /**

@@ -21,12 +21,31 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package ui;
+package uihelpers;
+
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 
 /**
  *
  * @author MrNKR
  */
-public interface GridButtonInterface {
-    public void onClick(int x, int y);
+public class GridButtonListener implements ActionListener {
+    private GridButtonInterface myGridButtonInterface;
+    private int x;
+    private int y;
+    
+    public GridButtonListener(int x, int y) {
+        this.x = x;
+        this.y = y;
+    }
+    
+    public void setGridButtonInterface(GridButtonInterface gridButtonInterface) {
+        this.myGridButtonInterface = gridButtonInterface;
+    }
+    
+    @Override
+    public void actionPerformed(ActionEvent e) {
+        this.myGridButtonInterface.onClick(this.x, this.y);
+    }
 }
