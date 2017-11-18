@@ -25,8 +25,6 @@ package ui;
 
 import data.MySystem;
 import data.Player;
-import java.util.Arrays;
-import java.util.stream.Collectors;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JOptionPane;
 

@@ -30,11 +30,14 @@ import data.Player;
 import data.Token;
 import java.awt.Color;
 import java.awt.GridLayout;
+import java.io.File;
+import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
 import javax.swing.Icon;
 import javax.swing.JButton;
 import javax.swing.JColorChooser;
 import javax.swing.JFileChooser;
+import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import jiconfont.icons.FontAwesome;
@@ -45,12 +48,14 @@ import jiconfont.swing.IconFontSwing;
  * @author MrNKR
  */
 public class GameView extends javax.swing.JFrame {
-    private JButton[][] myButtonGrid;
     private MySystem system;
     
     private Game game;
-    private boolean rotateGrid;
+    private JButton[][] myButtonGrid;
+    private JLabel[] myRowIndicators;
+    private JLabel[] myColumnIndicators;
     private String lastClickedPosition; // When clicking an origin button its x postion will be stored here
+    private boolean rotateGrid;
     
     private String blackTowerImageUrl;
     private String blackBishopImageUrl;
@@ -71,6 +76,7 @@ public class GameView extends javax.swing.JFrame {
         initComponents();
         setButtonIcons();
         preloadImages();
+        prepareIndicators(this.game.getGridSize());
         prepareGrid(this.game.getGridSize());
     }
 
@@ -84,6 +90,8 @@ public class GameView extends javax.swing.JFrame {
     private void initComponents() {
 
         myGamePanel = new javax.swing.JPanel();
+        myRowIndicatorPanel = new javax.swing.JPanel();
+        myColumnIndicatorPanel = new javax.swing.JPanel();
         jMenuBar1 = new javax.swing.JMenuBar();
         jMenu1 = new javax.swing.JMenu();
         mySurrenderOption = new javax.swing.JMenuItem();
@@ -96,24 +104,53 @@ public class GameView extends javax.swing.JFrame {
         myChangeWhiteBishopOption = new javax.swing.JMenuItem();
         myChangeBackgroundColorOption = new javax.swing.JMenuItem();
         jMenu2 = new javax.swing.JMenu();
+        myMoveHistoryOption = new javax.swing.JMenuItem();
         myHelpOption = new javax.swing.JMenuItem();
+        mySaveHistoryOption = new javax.swing.JMenuItem();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
         setTitle("Juego");
-        getContentPane().setLayout(new javax.swing.BoxLayout(getContentPane(), javax.swing.BoxLayout.LINE_AXIS));
 
         javax.swing.GroupLayout myGamePanelLayout = new javax.swing.GroupLayout(myGamePanel);
         myGamePanel.setLayout(myGamePanelLayout);
         myGamePanelLayout.setHorizontalGroup(
             myGamePanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 422, Short.MAX_VALUE)
+            .addGap(0, 405, Short.MAX_VALUE)
         );
         myGamePanelLayout.setVerticalGroup(
             myGamePanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 355, Short.MAX_VALUE)
+            .addGap(0, 360, Short.MAX_VALUE)
         );
 
-        getContentPane().add(myGamePanel);
+        getContentPane().add(myGamePanel, java.awt.BorderLayout.CENTER);
+
+        myRowIndicatorPanel.setMinimumSize(new java.awt.Dimension(20, 80));
+
+        javax.swing.GroupLayout myRowIndicatorPanelLayout = new javax.swing.GroupLayout(myRowIndicatorPanel);
+        myRowIndicatorPanel.setLayout(myRowIndicatorPanelLayout);
+        myRowIndicatorPanelLayout.setHorizontalGroup(
+            myRowIndicatorPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 45, Short.MAX_VALUE)
+        );
+        myRowIndicatorPanelLayout.setVerticalGroup(
+            myRowIndicatorPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 360, Short.MAX_VALUE)
+        );
+
+        getContentPane().add(myRowIndicatorPanel, java.awt.BorderLayout.WEST);
+
+        javax.swing.GroupLayout myColumnIndicatorPanelLayout = new javax.swing.GroupLayout(myColumnIndicatorPanel);
+        myColumnIndicatorPanel.setLayout(myColumnIndicatorPanelLayout);
+        myColumnIndicatorPanelLayout.setHorizontalGroup(
+            myColumnIndicatorPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 450, Short.MAX_VALUE)
+        );
+        myColumnIndicatorPanelLayout.setVerticalGroup(
+            myColumnIndicatorPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 0, Short.MAX_VALUE)
+        );
+
+        getContentPane().add(myColumnIndicatorPanel, java.awt.BorderLayout.SOUTH);
 
         jMenu1.setText("Juego");
 
@@ -192,6 +229,15 @@ public class GameView extends javax.swing.JFrame {
 
         jMenu2.setText("Ayuda");
 
+        myMoveHistoryOption.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_H, java.awt.event.InputEvent.SHIFT_MASK));
+        myMoveHistoryOption.setText("Historial de Movimientos");
+        myMoveHistoryOption.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                myMoveHistoryOptionActionPerformed(evt);
+            }
+        });
+        jMenu2.add(myMoveHistoryOption);
+
         myHelpOption.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_Y, java.awt.event.InputEvent.CTRL_MASK));
         myHelpOption.setText("Posibles Movimientos");
         myHelpOption.addActionListener(new java.awt.event.ActionListener() {
@@ -200,6 +246,15 @@ public class GameView extends javax.swing.JFrame {
             }
         });
         jMenu2.add(myHelpOption);
+
+        mySaveHistoryOption.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_S, java.awt.event.InputEvent.CTRL_MASK));
+        mySaveHistoryOption.setText("Guardar Historial");
+        mySaveHistoryOption.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                mySaveHistoryOptionActionPerformed(evt);
+            }
+        });
+        jMenu2.add(mySaveHistoryOption);
 
         jMenuBar1.add(jMenu2);
 
@@ -272,8 +327,8 @@ public class GameView extends javax.swing.JFrame {
                 "JPG, PNG & GIF Images", "jpg", "png", "gif");
         chooser.setFileFilter(filter);
         
-        int returnVal = chooser.showOpenDialog(null);
-        if(returnVal == JFileChooser.APPROVE_OPTION) {
+        int retVal = chooser.showOpenDialog(this);
+        if(retVal == JFileChooser.APPROVE_OPTION) {
             return chooser.getSelectedFile().getPath();
         }
         
@@ -281,12 +336,16 @@ public class GameView extends javax.swing.JFrame {
     }
     
     private void myHelpOptionActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_myHelpOptionActionPerformed
-        // TODO add your handling code here:
+        java.awt.EventQueue.invokeLater(() -> {
+            // this.setEnabled(false);
+            new GameDataForm(true, this.system).setVisible(true);
+        });
     }//GEN-LAST:event_myHelpOptionActionPerformed
 
     private void myRotateGridOptionActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_myRotateGridOptionActionPerformed
         this.rotateGrid = !this.rotateGrid;
         refreshGrid();
+        rotateIndicators();
     }//GEN-LAST:event_myRotateGridOptionActionPerformed
 
     private void myChangeBackgroundColorOptionActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_myChangeBackgroundColorOptionActionPerformed
@@ -295,6 +354,48 @@ public class GameView extends javax.swing.JFrame {
         refreshGrid();
     }//GEN-LAST:event_myChangeBackgroundColorOptionActionPerformed
 
+    private void myMoveHistoryOptionActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_myMoveHistoryOptionActionPerformed
+        java.awt.EventQueue.invokeLater(() -> {
+            // this.setEnabled(false);
+            new GameDataForm(false, this.system).setVisible(true);
+        });
+    }//GEN-LAST:event_myMoveHistoryOptionActionPerformed
+
+    private void mySaveHistoryOptionActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_mySaveHistoryOptionActionPerformed
+        JFileChooser chooser = new JFileChooser();
+        
+        int retVal = chooser.showSaveDialog(this);
+        if (retVal == JFileChooser.APPROVE_OPTION) {
+            boolean success = false;
+            
+            File file = new File(chooser.getSelectedFile().getPath());
+            if (file.exists()) {
+                int replace = JOptionPane.showConfirmDialog(this, 
+                                                            "Ese archivo ya existe, lo quieres reemplazar?", 
+                                                            "El archivo ya existe", 
+                                                            JOptionPane.YES_NO_OPTION, 
+                                                            JOptionPane.QUESTION_MESSAGE);
+                
+                if (replace == JOptionPane.NO_OPTION) {
+                    return;
+                }
+            }
+            
+            if (chooser.getSelectedFile().getPath().contains("pdf")) {
+                success = this.system.saveHistoryPdf(chooser.getSelectedFile().getPath());
+            } else if (chooser.getSelectedFile().getPath().contains("txt")) {
+                success = this.system.saveHistoryTxt(chooser.getSelectedFile().getPath());
+            }
+            
+            if (!success) {
+                JOptionPane.showMessageDialog(this, 
+                                                "No se pudo guardar el archivo, intenta de nuevo", 
+                                                "Error", 
+                                                JOptionPane.ERROR_MESSAGE);
+            }
+        }
+    }//GEN-LAST:event_mySaveHistoryOptionActionPerformed
+    
     private void setButtonIcons() {
         IconFontSwing.register(FontAwesome.getIconFont());
         
@@ -307,15 +408,55 @@ public class GameView extends javax.swing.JFrame {
         Icon rotateIcon = IconFontSwing.buildIcon(FontAwesome.UNDO, 15);
         myRotateGridOption.setIcon(rotateIcon);
         
+        Icon historyIcon = IconFontSwing.buildIcon(FontAwesome.HISTORY, 15);
+        myMoveHistoryOption.setIcon(historyIcon);
+        
         Icon helpIcon = IconFontSwing.buildIcon(FontAwesome.QUESTION_CIRCLE_O, 15);
         myHelpOption.setIcon(helpIcon);
+        
+        Icon saveIcon = IconFontSwing.buildIcon(FontAwesome.FLOPPY_O, 15);
+        mySaveHistoryOption.setIcon(saveIcon);
     }
     
-    public void preloadImages() {
+    private void preloadImages() {
         this.blackTowerImageUrl = "/res/tower_black.png";
         this.blackBishopImageUrl = "/res/bishop_black.png";
         this.whiteTowerImageUrl = "/res/tower_white.png";
         this.whiteBishopImageUrl = "/res/bishop_white.png";
+    }
+    
+    private void prepareIndicators(int size) {
+        this.myRowIndicators = new JLabel[size];
+        this.myRowIndicatorPanel.setLayout(new GridLayout(size, 1));
+        this.myColumnIndicators = new JLabel[size];
+        this.myColumnIndicatorPanel.setLayout(new GridLayout(1, size));
+        
+        for (int i = 0; i < size; i++) {
+            // Row indicators
+            JLabel rowLabel = new JLabel("  " + String.valueOf(size - i) + " ");
+            this.myRowIndicators[i] = rowLabel;
+            this.myRowIndicatorPanel.add(rowLabel);
+            
+            // Column indicators
+            JLabel colLabel = new JLabel(String.valueOf((char) (i + 65)));
+            colLabel.setHorizontalAlignment(JLabel.CENTER);
+            this.myColumnIndicators[i] = colLabel;
+            this.myColumnIndicatorPanel.add(colLabel);
+        }
+    }
+    
+    private void rotateIndicators() {
+        for (int i = 0; i < Math.floor(this.myRowIndicators.length / 2); i++) {
+            // Invert rows
+            String aux = this.myRowIndicators[i].getText();
+            this.myRowIndicators[i].setText(this.myRowIndicators[this.myRowIndicators.length - i - 1].getText());
+            this.myRowIndicators[this.myRowIndicators.length - i - 1].setText(aux);
+            
+            // Invert columns
+            aux = this.myColumnIndicators[i].getText();
+            this.myColumnIndicators[i].setText(this.myColumnIndicators[this.myColumnIndicators.length - i - 1].getText());
+            this.myColumnIndicators[this.myColumnIndicators.length - i - 1].setText(aux);
+        }
     }
     
     private void prepareGrid(int size) {
@@ -341,6 +482,10 @@ public class GameView extends javax.swing.JFrame {
                 
                 if (this.game.getGrid()[i][j] != null) {
                     jButton.setIcon(makeTokenIcon(this.game.getGrid()[i][j]));
+                }
+                
+                if ((i == 0 || i == size - 1) && (j == Math.ceil(size/2))) {
+                    jButton.setBorder(BorderFactory.createDashedBorder(Color.RED));
                 }
                 
                 myGamePanel.add(jButton); 
@@ -432,9 +577,13 @@ public class GameView extends javax.swing.JFrame {
     private javax.swing.JMenuItem myChangeBlackTowerOption;
     private javax.swing.JMenuItem myChangeWhiteBishopOption;
     private javax.swing.JMenuItem myChangeWhiteTowerOption;
+    private javax.swing.JPanel myColumnIndicatorPanel;
     private javax.swing.JPanel myGamePanel;
     private javax.swing.JMenuItem myHelpOption;
+    private javax.swing.JMenuItem myMoveHistoryOption;
     private javax.swing.JMenuItem myRotateGridOption;
+    private javax.swing.JPanel myRowIndicatorPanel;
+    private javax.swing.JMenuItem mySaveHistoryOption;
     private javax.swing.JMenuItem mySurrenderOption;
     private javax.swing.JMenuItem myTruceOption;
     // End of variables declaration//GEN-END:variables

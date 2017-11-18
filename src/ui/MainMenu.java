@@ -25,6 +25,7 @@ package ui;
 
 import data.MySystem;
 import javax.swing.Icon;
+import javax.swing.JOptionPane;
 import jiconfont.icons.FontAwesome;
 import jiconfont.swing.IconFontSwing;
 
@@ -45,6 +46,8 @@ public class MainMenu extends javax.swing.JFrame {
         
         initComponents();
         setButtonIcons();
+        
+        this.system.toggleMusicPlaying();
     }
 
     /**
@@ -158,12 +161,14 @@ public class MainMenu extends javax.swing.JFrame {
     
     private void myRankingButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_myRankingButtonActionPerformed
         if (!this.system.hasPlayers()) {
-            System.out.println("No hay jugadores registrados aún...\n\n");
+            JOptionPane.showMessageDialog(this, "No hay jugadores registrados", "Error", JOptionPane.ERROR_MESSAGE);
+            return;
         }
 
-        for (int i=0; i < this.system.getPlayerList().size(); i++) {
-            System.out.println(this.system.getPlayerList().get(i) + "\n");
-        }
+        java.awt.EventQueue.invokeLater(() -> {
+            // this.setEnabled(false);
+            new RankingForm(this.system).setVisible(true);
+        });
     }//GEN-LAST:event_myRankingButtonActionPerformed
 
     private void myToggleMusicButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_myToggleMusicButtonActionPerformed
