@@ -25,22 +25,33 @@ package ui;
 
 import data.MySystem;
 import data.Player;
+import java.awt.event.WindowEvent;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JOptionPane;
+import uihelpers.FrameDelegateInterface;
 
 /**
  *
- * @author MrNKR
+ * @author - Darío Dathaguy - Programación 2 - Número de estudiante: 220839 - Universidad ORT 
+ * @author - Álvaro Nicoli - Programación 2 - Número de estudiante: 220159 - Universidad ORT
  */
+
 public class GameSetupForm extends javax.swing.JFrame {
     private MySystem system;
+    private FrameDelegateInterface myDelegate;
+    private FrameDelegateInterface gameViewDelegate;
+    private boolean isOpeningGame;
 
     /**
      * Creates new form GameSetupForm
      * @param system
+     * @param myDelegate
+     * @param gameViewDelegate
      */
-    public GameSetupForm(MySystem system) {
+    public GameSetupForm(MySystem system, FrameDelegateInterface myDelegate, FrameDelegateInterface gameViewDelegate) {
         this.system = system;
+        this.myDelegate = myDelegate;
+        this.gameViewDelegate = gameViewDelegate;
         
         initComponents();
         populateCombos();
@@ -67,6 +78,11 @@ public class GameSetupForm extends javax.swing.JFrame {
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
         setTitle("Preparar Juego");
+        addWindowListener(new java.awt.event.WindowAdapter() {
+            public void windowClosing(java.awt.event.WindowEvent evt) {
+                formWindowClosing(evt);
+            }
+        });
 
         jLabel1.setText("Jugador 1");
 
@@ -163,6 +179,8 @@ public class GameSetupForm extends javax.swing.JFrame {
             return;
         }
         
+        this.isOpeningGame = true;
+        
         Player player1 = this.system.getPlayerList().get(this.myPlayer1SelectionComboBox.getSelectedIndex());
         Player player2 = this.system.getPlayerList().get(this.myPlayer2SelectionComboBox.getSelectedIndex());
         int size = this.my3RadioButton.isSelected() ? 3 : 5;
@@ -170,12 +188,18 @@ public class GameSetupForm extends javax.swing.JFrame {
         this.system.startNewGame(player1, player2, size);
         
         java.awt.EventQueue.invokeLater(() -> {
-            // this.setEnabled(false);
-            new GameView(this.system).setVisible(true);
+            this.myDelegate.onFrameClosing("opening-game");
+            new GameView(this.system, this.gameViewDelegate).setVisible(true);
         });
         
-        this.dispose();
+        this.dispatchEvent(new WindowEvent(this, WindowEvent.WINDOW_CLOSING));
     }//GEN-LAST:event_myOkButtonActionPerformed
+
+    private void formWindowClosing(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowClosing
+        if (!this.isOpeningGame) {
+            this.myDelegate.onFrameClosing("not-opening-game");
+        }
+    }//GEN-LAST:event_formWindowClosing
     
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JLabel jLabel1;

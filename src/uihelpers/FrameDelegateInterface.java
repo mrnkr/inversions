@@ -29,6 +29,6 @@ package uihelpers;
  * @author - Álvaro Nicoli - Programación 2 - Número de estudiante: 220159 - Universidad ORT
  */
 
-public interface GridButtonInterface {
-    public void onClick(int x, int y);
+public interface FrameDelegateInterface {
+    public void onFrameClosing(String args);
 }

@@ -28,8 +28,10 @@ import java.awt.event.ActionListener;
 
 /**
  *
- * @author MrNKR
+ * @author - Darío Dathaguy - Programación 2 - Número de estudiante: 220839 - Universidad ORT 
+ * @author - Álvaro Nicoli - Programación 2 - Número de estudiante: 220159 - Universidad ORT
  */
+
 public class GridButtonListener implements ActionListener {
     private GridButtonInterface myGridButtonInterface;
     private int x;

@@ -30,6 +30,7 @@ import data.Player;
 import data.Token;
 import java.awt.Color;
 import java.awt.GridLayout;
+import java.awt.event.WindowEvent;
 import java.io.File;
 import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
@@ -42,13 +43,17 @@ import javax.swing.JOptionPane;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import jiconfont.icons.FontAwesome;
 import jiconfont.swing.IconFontSwing;
+import uihelpers.FrameDelegateInterface;
 
 /**
  *
- * @author MrNKR
+ * @author - Darío Dathaguy - Programación 2 - Número de estudiante: 220839 - Universidad ORT 
+ * @author - Álvaro Nicoli - Programación 2 - Número de estudiante: 220159 - Universidad ORT
  */
+
 public class GameView extends javax.swing.JFrame {
     private MySystem system;
+    private FrameDelegateInterface delegate;
     
     private Game game;
     private JButton[][] myButtonGrid;
@@ -67,9 +72,11 @@ public class GameView extends javax.swing.JFrame {
     /**
      * Creates new form GameView
      * @param system
+     * @param delegate
      */
-    public GameView(MySystem system) {
+    public GameView(MySystem system, FrameDelegateInterface delegate) {
         this.system = system;
+        this.delegate = delegate;
         this.game = system.getRunningGame();
         this.lastClickedPosition = "";
         
@@ -97,6 +104,7 @@ public class GameView extends javax.swing.JFrame {
         mySurrenderOption = new javax.swing.JMenuItem();
         myTruceOption = new javax.swing.JMenuItem();
         myRotateGridOption = new javax.swing.JMenuItem();
+        myMusicToggleOption = new javax.swing.JMenuItem();
         jMenu3 = new javax.swing.JMenu();
         myChangeBlackTowerOption = new javax.swing.JMenuItem();
         myChangeBlackBishopOption = new javax.swing.JMenuItem();
@@ -110,6 +118,11 @@ public class GameView extends javax.swing.JFrame {
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
         setTitle("Juego");
+        addWindowListener(new java.awt.event.WindowAdapter() {
+            public void windowClosing(java.awt.event.WindowEvent evt) {
+                formWindowClosing(evt);
+            }
+        });
 
         javax.swing.GroupLayout myGamePanelLayout = new javax.swing.GroupLayout(myGamePanel);
         myGamePanel.setLayout(myGamePanelLayout);
@@ -180,6 +193,15 @@ public class GameView extends javax.swing.JFrame {
             }
         });
         jMenu1.add(myRotateGridOption);
+
+        myMusicToggleOption.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_M, java.awt.event.InputEvent.CTRL_MASK));
+        myMusicToggleOption.setText("Musica");
+        myMusicToggleOption.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                myMusicToggleOptionActionPerformed(evt);
+            }
+        });
+        jMenu1.add(myMusicToggleOption);
 
         jMenuBar1.add(jMenu1);
 
@@ -268,7 +290,7 @@ public class GameView extends javax.swing.JFrame {
         
         if (confirm == JOptionPane.YES_OPTION) {
             this.game.surrender();
-            this.dispose();
+            this.dispatchEvent(new WindowEvent(this, WindowEvent.WINDOW_CLOSING));
         }
     }//GEN-LAST:event_mySurrenderOptionActionPerformed
 
@@ -277,7 +299,7 @@ public class GameView extends javax.swing.JFrame {
         
         if (confirm == JOptionPane.YES_OPTION) {
             this.game.draw();
-            this.dispose();
+            this.dispatchEvent(new WindowEvent(this, WindowEvent.WINDOW_CLOSING));
         }
     }//GEN-LAST:event_myTruceOptionActionPerformed
 
@@ -337,8 +359,11 @@ public class GameView extends javax.swing.JFrame {
     
     private void myHelpOptionActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_myHelpOptionActionPerformed
         java.awt.EventQueue.invokeLater(() -> {
-            // this.setEnabled(false);
-            new GameDataForm(true, this.system).setVisible(true);
+            this.setEnabled(false);
+            
+            new GameDataForm(true, this.system, args -> {
+                this.setEnabled(true);
+            }).setVisible(true);
         });
     }//GEN-LAST:event_myHelpOptionActionPerformed
 
@@ -356,8 +381,11 @@ public class GameView extends javax.swing.JFrame {
 
     private void myMoveHistoryOptionActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_myMoveHistoryOptionActionPerformed
         java.awt.EventQueue.invokeLater(() -> {
-            // this.setEnabled(false);
-            new GameDataForm(false, this.system).setVisible(true);
+            this.setEnabled(false);
+            
+            new GameDataForm(false, this.system, args -> {
+                this.setEnabled(true);
+            }).setVisible(true);
         });
     }//GEN-LAST:event_myMoveHistoryOptionActionPerformed
 
@@ -395,6 +423,17 @@ public class GameView extends javax.swing.JFrame {
             }
         }
     }//GEN-LAST:event_mySaveHistoryOptionActionPerformed
+
+    private void formWindowClosing(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowClosing
+        this.delegate.onFrameClosing(null);
+    }//GEN-LAST:event_formWindowClosing
+
+    private void myMusicToggleOptionActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_myMusicToggleOptionActionPerformed
+        Icon playIcon = IconFontSwing.buildIcon((this.system.getIsMusicPlaying() ? FontAwesome.VOLUME_UP : FontAwesome.VOLUME_OFF), 15);
+        myMusicToggleOption.setIcon(playIcon);
+        
+        this.system.toggleMusicPlaying();
+    }//GEN-LAST:event_myMusicToggleOptionActionPerformed
     
     private void setButtonIcons() {
         IconFontSwing.register(FontAwesome.getIconFont());
@@ -407,6 +446,9 @@ public class GameView extends javax.swing.JFrame {
         
         Icon rotateIcon = IconFontSwing.buildIcon(FontAwesome.UNDO, 15);
         myRotateGridOption.setIcon(rotateIcon);
+        
+        Icon playIcon = IconFontSwing.buildIcon((this.system.getIsMusicPlaying() ? FontAwesome.VOLUME_UP : FontAwesome.VOLUME_OFF), 15);
+        myMusicToggleOption.setIcon(playIcon);
         
         Icon historyIcon = IconFontSwing.buildIcon(FontAwesome.HISTORY, 15);
         myMoveHistoryOption.setIcon(historyIcon);
@@ -503,7 +545,7 @@ public class GameView extends javax.swing.JFrame {
             if (winner != null) {
                 this.game.endGame(winner);
                 JOptionPane.showMessageDialog(this, winner.getAlias() + " gano!", "Ganador!", JOptionPane.INFORMATION_MESSAGE);
-                this.dispose();
+                this.dispatchEvent(new WindowEvent(this, WindowEvent.WINDOW_CLOSING));
             }
         } catch (Exception ex) {
             JOptionPane.showMessageDialog(this, "Movimiento invalido", "Error", JOptionPane.ERROR_MESSAGE);
@@ -581,6 +623,7 @@ public class GameView extends javax.swing.JFrame {
     private javax.swing.JPanel myGamePanel;
     private javax.swing.JMenuItem myHelpOption;
     private javax.swing.JMenuItem myMoveHistoryOption;
+    private javax.swing.JMenuItem myMusicToggleOption;
     private javax.swing.JMenuItem myRotateGridOption;
     private javax.swing.JPanel myRowIndicatorPanel;
     private javax.swing.JMenuItem mySaveHistoryOption;

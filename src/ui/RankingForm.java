@@ -27,21 +27,26 @@ import data.MySystem;
 import data.Player;
 import java.util.ArrayList;
 import javax.swing.table.DefaultTableModel;
-
+import uihelpers.FrameDelegateInterface;
 
 /**
  *
- * @author MrNKR
+ * @author - Darío Dathaguy - Programación 2 - Número de estudiante: 220839 - Universidad ORT 
+ * @author - Álvaro Nicoli - Programación 2 - Número de estudiante: 220159 - Universidad ORT
  */
+
 public class RankingForm extends javax.swing.JFrame {
     private MySystem system;
+    private FrameDelegateInterface delegate;
 
     /**
      * Creates new form RankingForm
      * @param system
+     * @param delegate
      */
-    public RankingForm(MySystem system) {
+    public RankingForm(MySystem system, FrameDelegateInterface delegate) {
         this.system = system;
+        this.delegate = delegate;
         
         initComponents();
         populateTable();
@@ -63,6 +68,11 @@ public class RankingForm extends javax.swing.JFrame {
         setTitle("Ranking");
         setAlwaysOnTop(true);
         setResizable(false);
+        addWindowListener(new java.awt.event.WindowAdapter() {
+            public void windowClosing(java.awt.event.WindowEvent evt) {
+                formWindowClosing(evt);
+            }
+        });
         getContentPane().setLayout(new javax.swing.BoxLayout(getContentPane(), javax.swing.BoxLayout.LINE_AXIS));
 
         myRankingTable.setModel(new javax.swing.table.DefaultTableModel(
@@ -101,6 +111,10 @@ public class RankingForm extends javax.swing.JFrame {
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
+
+    private void formWindowClosing(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowClosing
+        this.delegate.onFrameClosing(null);
+    }//GEN-LAST:event_formWindowClosing
 
     private void populateTable() {
         DefaultTableModel model = (DefaultTableModel) myRankingTable.getModel();

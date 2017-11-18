@@ -27,21 +27,27 @@ import data.Game;
 import data.MySystem;
 import data.Player;
 import javax.swing.DefaultListModel;
+import uihelpers.FrameDelegateInterface;
 
 /**
  *
- * @author MrNKR
+ * @author - Darío Dathaguy - Programación 2 - Número de estudiante: 220839 - Universidad ORT 
+ * @author - Álvaro Nicoli - Programación 2 - Número de estudiante: 220159 - Universidad ORT
  */
+
 public class GameDataForm extends javax.swing.JFrame {
     private MySystem system;
+    private FrameDelegateInterface delegate;
     
     /**
      * Creates new form GameDataForm
      * @param possibleMoves
      * @param system - The system instance
+     * @param delegate
      */
-    public GameDataForm(boolean possibleMoves, MySystem system) {
+    public GameDataForm(boolean possibleMoves, MySystem system, FrameDelegateInterface delegate) {
         this.system = system;
+        this.delegate = delegate;
         
         initComponents();
         
@@ -69,6 +75,11 @@ public class GameDataForm extends javax.swing.JFrame {
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
         setPreferredSize(new java.awt.Dimension(400, 256));
         setSize(new java.awt.Dimension(300, 180));
+        addWindowListener(new java.awt.event.WindowAdapter() {
+            public void windowClosing(java.awt.event.WindowEvent evt) {
+                formWindowClosing(evt);
+            }
+        });
         getContentPane().setLayout(new javax.swing.BoxLayout(getContentPane(), javax.swing.BoxLayout.LINE_AXIS));
 
         jList1.setModel(new javax.swing.AbstractListModel<String>() {
@@ -82,6 +93,10 @@ public class GameDataForm extends javax.swing.JFrame {
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
+
+    private void formWindowClosing(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowClosing
+        this.delegate.onFrameClosing(null);
+    }//GEN-LAST:event_formWindowClosing
 
     private void populateListWithHistory() {
         DefaultListModel model = new DefaultListModel();

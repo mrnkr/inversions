@@ -24,6 +24,7 @@
 package ui;
 
 import data.MySystem;
+import java.awt.Toolkit;
 import javax.swing.Icon;
 import javax.swing.JOptionPane;
 import jiconfont.icons.FontAwesome;
@@ -31,8 +32,10 @@ import jiconfont.swing.IconFontSwing;
 
 /**
  *
- * @author MrNKR
+ * @author - Darío Dathaguy - Programación 2 - Número de estudiante: 220839 - Universidad ORT 
+ * @author - Álvaro Nicoli - Programación 2 - Número de estudiante: 220159 - Universidad ORT
  */
+
 public class MainMenu extends javax.swing.JFrame {
     
     private MySystem system;
@@ -67,6 +70,7 @@ public class MainMenu extends javax.swing.JFrame {
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setTitle("Inversiones");
+        setIconImage(Toolkit.getDefaultToolkit().getImage(getClass().getResource("/res/icon.png")));
         setResizable(false);
         addWindowListener(new java.awt.event.WindowAdapter() {
             public void windowClosing(java.awt.event.WindowEvent evt) {
@@ -146,7 +150,7 @@ public class MainMenu extends javax.swing.JFrame {
     private void setButtonIcons() {
         IconFontSwing.register(FontAwesome.getIconFont());
         
-        Icon volumeOffIcon = IconFontSwing.buildIcon(FontAwesome.VOLUME_OFF, 15);
+        Icon volumeOffIcon = IconFontSwing.buildIcon(FontAwesome.VOLUME_UP, 15);
         myToggleMusicButton.setIcon(volumeOffIcon);
         
         Icon playIcon = IconFontSwing.buildIcon(FontAwesome.GAMEPAD, 15);
@@ -166,8 +170,11 @@ public class MainMenu extends javax.swing.JFrame {
         }
 
         java.awt.EventQueue.invokeLater(() -> {
-            // this.setEnabled(false);
-            new RankingForm(this.system).setVisible(true);
+            this.setEnabled(false);
+            
+            new RankingForm(this.system, args -> {
+                this.setEnabled(true);
+            }).setVisible(true);
         });
     }//GEN-LAST:event_myRankingButtonActionPerformed
 
@@ -175,9 +182,9 @@ public class MainMenu extends javax.swing.JFrame {
         Icon icon;
         
         if (this.system.getIsMusicPlaying()) {
-            icon = IconFontSwing.buildIcon(FontAwesome.VOLUME_UP, 15);
-        } else {
             icon = IconFontSwing.buildIcon(FontAwesome.VOLUME_OFF, 15);
+        } else {
+            icon = IconFontSwing.buildIcon(FontAwesome.VOLUME_UP, 15);
         }
         
         this.system.toggleMusicPlaying();
@@ -186,18 +193,35 @@ public class MainMenu extends javax.swing.JFrame {
 
     private void myRegisterPlayerButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_myRegisterPlayerButtonActionPerformed
         java.awt.EventQueue.invokeLater(() -> {
-            // this.setEnabled(false);
-            new UserRegistrationForm(this.system).setVisible(true);
+            this.setEnabled(false);
+            
+            new UserRegistrationForm(this.system, args -> {
+                this.setEnabled(true);
+            }).setVisible(true);
         });
     }//GEN-LAST:event_myRegisterPlayerButtonActionPerformed
 
     private void myPlayButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_myPlayButtonActionPerformed
         java.awt.EventQueue.invokeLater(() -> {
-            // this.setEnabled(false);
             if (this.system.getRunningGame() != null) {
-                new GameView(this.system).setVisible(true);
+                this.setVisible(false);
+                
+                new GameView(this.system, args -> {
+                    this.setVisible(true);
+                }).setVisible(true);
             } else {
-                new GameSetupForm(this.system).setVisible(true);
+                this.setEnabled(false);
+                
+                new GameSetupForm(this.system, args -> {
+                    // GameSetupForm Delegate
+                    this.setEnabled(true);
+                    
+                    if (args.equals("opening-game")) {
+                        this.setVisible(false);
+                    }
+                }, args -> {
+                    this.setVisible(true);
+                }).setVisible(true);
             }
         });
     }//GEN-LAST:event_myPlayButtonActionPerformed

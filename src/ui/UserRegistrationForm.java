@@ -25,24 +25,31 @@ package ui;
 
 import data.MySystem;
 import data.Player;
+import java.awt.event.WindowEvent;
 import javax.swing.Icon;
 import javax.swing.JOptionPane;
 import jiconfont.icons.FontAwesome;
 import jiconfont.swing.IconFontSwing;
+import uihelpers.FrameDelegateInterface;
 
 /**
  *
- * @author MrNKR
+ * @author - Darío Dathaguy - Programación 2 - Número de estudiante: 220839 - Universidad ORT 
+ * @author - Álvaro Nicoli - Programación 2 - Número de estudiante: 220159 - Universidad ORT
  */
+
 public class UserRegistrationForm extends javax.swing.JFrame {
     private MySystem system;
+    private FrameDelegateInterface delegate;
     
     /**
      * Creates new form UserRegistrationForm
      * @param system
+     * @param delegate
      */
-    public UserRegistrationForm(MySystem system) {
+    public UserRegistrationForm(MySystem system, FrameDelegateInterface delegate) {
         this.system = system;
+        this.delegate = delegate;
         
         initComponents();
         setButtonIcons();
@@ -68,6 +75,11 @@ public class UserRegistrationForm extends javax.swing.JFrame {
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
         setTitle("Registro Usuario");
         setResizable(false);
+        addWindowListener(new java.awt.event.WindowAdapter() {
+            public void windowClosing(java.awt.event.WindowEvent evt) {
+                formWindowClosing(evt);
+            }
+        });
 
         myAliasField.setText("Alias");
         myAliasField.addKeyListener(new java.awt.event.KeyAdapter() {
@@ -158,14 +170,13 @@ public class UserRegistrationForm extends javax.swing.JFrame {
         try {
             age = Integer.parseInt(myAgeField.getText());
         } catch (Exception e) {
-            // Tirar jOptionPane
             JOptionPane.showMessageDialog(this, "Debe ingresar un numero en la edad", "Error", JOptionPane.ERROR_MESSAGE);
             return;
         }
         Player player = new Player(myNameField.getText(),myAliasField.getText(), age);
                 
         if(this.system.addPlayer(player)) {
-            this.dispose();
+            this.dispatchEvent(new WindowEvent(this, WindowEvent.WINDOW_CLOSING));
         } else {
             JOptionPane.showMessageDialog(this, "Alias en uso", "Error", JOptionPane.ERROR_MESSAGE);
         }
@@ -174,6 +185,10 @@ public class UserRegistrationForm extends javax.swing.JFrame {
     private void myAliasFieldKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_myAliasFieldKeyPressed
         
     }//GEN-LAST:event_myAliasFieldKeyPressed
+
+    private void formWindowClosing(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowClosing
+        this.delegate.onFrameClosing(null);
+    }//GEN-LAST:event_formWindowClosing
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JTextField myAgeField;
