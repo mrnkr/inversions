@@ -27,7 +27,7 @@ import data.MySystem;
 import data.Player;
 import java.util.ArrayList;
 import javax.swing.table.DefaultTableModel;
-import uihelpers.FrameDelegateInterface;
+import helpers.FrameDelegateInterface;
 
 /**
  *

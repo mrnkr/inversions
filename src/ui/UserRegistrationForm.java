@@ -30,7 +30,7 @@ import javax.swing.Icon;
 import javax.swing.JOptionPane;
 import jiconfont.icons.FontAwesome;
 import jiconfont.swing.IconFontSwing;
-import uihelpers.FrameDelegateInterface;
+import helpers.FrameDelegateInterface;
 
 /**
  *
@@ -170,7 +170,7 @@ public class UserRegistrationForm extends javax.swing.JFrame {
         try {
             age = Integer.parseInt(myAgeField.getText());
         } catch (Exception e) {
-            JOptionPane.showMessageDialog(this, "Debe ingresar un numero en la edad", "Error", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(this, "La edad debería ser un número", "Error", JOptionPane.ERROR_MESSAGE);
             return;
         }
         Player player = new Player(myNameField.getText(),myAliasField.getText(), age);
@@ -178,7 +178,7 @@ public class UserRegistrationForm extends javax.swing.JFrame {
         if(this.system.addPlayer(player)) {
             this.dispatchEvent(new WindowEvent(this, WindowEvent.WINDOW_CLOSING));
         } else {
-            JOptionPane.showMessageDialog(this, "Alias en uso", "Error", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(this, "Alias ya en uso", "Error", JOptionPane.ERROR_MESSAGE);
         }
     }//GEN-LAST:event_myOkButtonActionPerformed
 

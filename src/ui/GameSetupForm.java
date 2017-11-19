@@ -28,7 +28,7 @@ import data.Player;
 import java.awt.event.WindowEvent;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JOptionPane;
-import uihelpers.FrameDelegateInterface;
+import helpers.FrameDelegateInterface;
 
 /**
  *

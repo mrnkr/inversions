@@ -26,6 +26,7 @@ package ui;
 import data.Game;
 import data.MySystem;
 import data.Player;
+import helpers.Utils;
 import java.util.Scanner;
 
 /**
@@ -173,7 +174,7 @@ public class UserInterface {
                     Player winner = game.hasWinner();
                     if (winner != null) {
                         game.endGame(winner);
-                        System.out.println("Ganador: " + winner.getColor() + winner.getAlias() + Game.ANSI_RESET);
+                        System.out.println("Ganador: " + winner.getColor() + winner.getAlias() + Utils.ANSI_RESET);
                     }
                 } catch (Exception e) {
                     System.out.println("Movimiento invalido");

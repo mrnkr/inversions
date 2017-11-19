@@ -23,7 +23,7 @@
  */
 package ui;
 
-import uihelpers.GridButtonListener;
+import helpers.GridButtonListener;
 import data.Game;
 import data.MySystem;
 import data.Player;
@@ -43,7 +43,8 @@ import javax.swing.JOptionPane;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import jiconfont.icons.FontAwesome;
 import jiconfont.swing.IconFontSwing;
-import uihelpers.FrameDelegateInterface;
+import helpers.FrameDelegateInterface;
+import helpers.Utils;
 
 /**
  *
@@ -286,7 +287,7 @@ public class GameView extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void mySurrenderOptionActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_mySurrenderOptionActionPerformed
-        int confirm = JOptionPane.showConfirmDialog(this, "Acepta el oponente la rendicion?", "Me rindo", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
+        int confirm = JOptionPane.showConfirmDialog(this, "Acepta el oponente la rendición?", "Me rindo", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
         
         if (confirm == JOptionPane.YES_OPTION) {
             this.game.surrender();
@@ -346,7 +347,7 @@ public class GameView extends javax.swing.JFrame {
     private String selectImageFile() {
         JFileChooser chooser = new JFileChooser();
         FileNameExtensionFilter filter = new FileNameExtensionFilter(
-                "JPG, PNG & GIF Images", "jpg", "png", "gif");
+                "Imagenes JPG, PNG & GIF", "jpg", "png", "gif");
         chooser.setFileFilter(filter);
         
         int retVal = chooser.showOpenDialog(this);
@@ -512,9 +513,9 @@ public class GameView extends javax.swing.JFrame {
                 GridButtonListener gridButtonListener = new GridButtonListener(i, j);
                 gridButtonListener.setGridButtonInterface((int x, int y) -> {
                     if (this.lastClickedPosition.equals("")) {
-                        this.lastClickedPosition = makeMoveString(x, y);
+                        this.lastClickedPosition = Utils.makeMoveString(this.game, this.rotateGrid, x, y);
                     } else {
-                        performMove(this.lastClickedPosition, makeMoveString(x, y));
+                        performMove(this.lastClickedPosition, Utils.makeMoveString(this.game, this.rotateGrid, x, y));
                         this.lastClickedPosition = "";
                     }
                 });
@@ -544,21 +545,12 @@ public class GameView extends javax.swing.JFrame {
             Player winner = this.game.hasWinner();
             if (winner != null) {
                 this.game.endGame(winner);
-                JOptionPane.showMessageDialog(this, winner.getAlias() + " gano!", "Ganador!", JOptionPane.INFORMATION_MESSAGE);
+                JOptionPane.showMessageDialog(this, winner.getAlias() + " ganó!", "Ganador!", JOptionPane.INFORMATION_MESSAGE);
                 this.dispatchEvent(new WindowEvent(this, WindowEvent.WINDOW_CLOSING));
             }
         } catch (Exception ex) {
-            JOptionPane.showMessageDialog(this, "Movimiento invalido", "Error", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(this, "Movimiento inválido", "Error", JOptionPane.ERROR_MESSAGE);
         }
-    }
-    
-    private String makeMoveString(int x, int y) {
-        if (this.rotateGrid) {
-            x = game.getGridSize() - x - 1;
-            y = game.getGridSize() - y - 1;
-        }
-        
-        return String.valueOf((char) (y + 65)) + (game.getGridSize() - x);
     }
     
     private void refreshGrid() {

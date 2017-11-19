@@ -202,6 +202,11 @@ public class MainMenu extends javax.swing.JFrame {
     }//GEN-LAST:event_myRegisterPlayerButtonActionPerformed
 
     private void myPlayButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_myPlayButtonActionPerformed
+        if (!this.system.hasPlayers()) {
+            JOptionPane.showMessageDialog(this, "No hay jugadores registrados", "Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+        
         java.awt.EventQueue.invokeLater(() -> {
             if (this.system.getRunningGame() != null) {
                 this.setVisible(false);

@@ -27,7 +27,8 @@ import data.Game;
 import data.MySystem;
 import data.Player;
 import javax.swing.DefaultListModel;
-import uihelpers.FrameDelegateInterface;
+import helpers.FrameDelegateInterface;
+import helpers.Utils;
 
 /**
  *
@@ -103,7 +104,7 @@ public class GameDataForm extends javax.swing.JFrame {
         String[] history = this.system.getRunningGame().getPrintableHistory().split("\n");
         
         for (String item : history) {
-            model.addElement(removeColorFromString(item));
+            model.addElement(Utils.removeColorFromString(item));
         }
         
         this.jList1.setModel(model);
@@ -118,24 +119,10 @@ public class GameDataForm extends javax.swing.JFrame {
         String[] moves = this.system.getRunningGame().getPossibleMoveList(nowPlaying).split("\n");
         
         for (String item : moves) {
-            model.addElement(removeColorFromString(item));
+            model.addElement(Utils.removeColorFromString(item));
         }
         
         this.jList1.setModel(model);
-    }
-    
-    /**
-     * Removes the color escape characters from a String
-     * @param text - The text to remove the escape chars from
-     * @return - The clean String
-     */
-    private String removeColorFromString(String text) {
-        String retVal = text.replace(Game.ANSI_RESET, "");
-        retVal = retVal.replace(Game.ANSI_RED, "");
-        retVal = retVal.replace(Game.ANSI_BLUE, "");
-        retVal = retVal.replace(Game.ANSI_GREEN, "");
-        
-        return retVal;
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables

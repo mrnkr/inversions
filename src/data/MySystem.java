@@ -26,6 +26,7 @@ package data;
 import com.itextpdf.text.Document;
 import com.itextpdf.text.Paragraph;
 import com.itextpdf.text.pdf.PdfWriter;
+import helpers.Utils;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
@@ -139,27 +140,34 @@ public class MySystem implements Serializable {
         return this.isMusicPlaying;
     }
     
+    private String generateHistoryFileContent(Game game) {
+        String retVal = "Inversiones - Historial\n";
+        
+        Date now = new Date();
+        DateFormat df = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
+        retVal += df.format(now) + "\n\n";
+        
+        retVal += "Jugadores:\n\n";
+        retVal += game.getPlayer1().toString() + "\n\n" + game.getPlayer2().toString() + "\n\n";
+        
+        String[] history = getRunningGame().getPrintableHistory().split("\n");
+        for (String item : history) {
+            retVal += Utils.removeColorFromString(item) + "\n";
+        }
+        
+        return retVal;
+    }
+    
     public boolean saveHistoryTxt(String route) {
         boolean retVal = false;
         FileOutputStream fos = null;
-        Date now = new Date();
-        DateFormat df = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
-        
-        String[] history = getRunningGame().getPrintableHistory().split("\n");
         
         try {
             File fout = new File(route);
             fos = new FileOutputStream(fout);
             BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(fos));
             
-            bw.write("Jugadores:\n\n");
-            bw.write(getRunningGame().getPlayer1().toString() + "\n\n" + getRunningGame().getPlayer2().toString() + "\n\n");
-            bw.write("Historial del: " + df.format(now) + "\n\n");
-            
-            for (String item : history) {
-                    bw.write(removeColorFromString(item));
-                    bw.newLine();
-            }
+            bw.write(generateHistoryFileContent(getRunningGame()));
             
             bw.close();
             retVal = true;
@@ -178,10 +186,6 @@ public class MySystem implements Serializable {
     
     public boolean saveHistoryPdf(String route) {
         boolean retVal = false;
-        Date now = new Date();
-        DateFormat df = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
-        
-        String[] history = getRunningGame().getPrintableHistory().split("\n");
         
         try {
             Document document = new Document();
@@ -190,19 +194,13 @@ public class MySystem implements Serializable {
             // step 3
             document.open();
             // step 4
-            document.add(new Paragraph("Jugadores:"));
-            document.add(new Paragraph(getRunningGame().getPlayer1().toString() + "\n\n" + getRunningGame().getPlayer2().toString()+ "\n\n"));
-            document.add(new Paragraph("Historial del: " + df.format(now) + "\n\n"));
-            
-            for (String item : history) {
-                document.add(new Paragraph(removeColorFromString(item)));
-            }
+            document.add(new Paragraph(generateHistoryFileContent(getRunningGame())));
             
             // step 5
             document.close();
             retVal = true;
         } catch (Exception ex) {
-            Logger.getLogger(MySystem.class.getName()).log(Level.SEVERE, null, ex);
+            // Logger.getLogger(MySystem.class.getName()).log(Level.SEVERE, null, ex);
         }
         
         return retVal;
@@ -219,19 +217,5 @@ public class MySystem implements Serializable {
         } catch (Exception e) {
             return false;
         }
-    }
-    
-    /**
-     * Removes the color escape characters from a String
-     * @param text - The text to remove the escape chars from
-     * @return - The clean String
-     */
-    private String removeColorFromString(String text) {
-        String retVal = text.replace(Game.ANSI_RESET, "");
-        retVal = retVal.replace(Game.ANSI_RED, "");
-        retVal = retVal.replace(Game.ANSI_BLUE, "");
-        retVal = retVal.replace(Game.ANSI_GREEN, "");
-        
-        return retVal;
     }
 }

@@ -25,6 +25,7 @@ package data;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import helpers.Utils;
 
 /**
  *
@@ -32,11 +33,6 @@ import java.util.ArrayList;
  * @author - Álvaro Nicoli - Programación 2 - Número de estudiante: 220159 - Universidad ORT
  */
 public class Game implements Serializable {
-    public static final transient String ANSI_RESET = "\u001B[0m";
-    public static final transient String ANSI_RED = "\u001B[31m";
-    public static final transient String ANSI_GREEN = "\u001B[32m";
-    public static final transient String ANSI_BLUE = "\u001B[34m";
-    
     private Player player1;
     private Player player2;
     private Token[][] grid;
@@ -45,15 +41,43 @@ public class Game implements Serializable {
     
     public Game(Player player1, Player player2, int size) {
         this.player1 = player1;
-        this.player1.setColor(ANSI_RED);
+        this.player1.setColor(Utils.ANSI_RED);
         this.player1.toggleTurn();
         this.player2 = player2;
-        this.player2.setColor(ANSI_BLUE);
+        this.player2.setColor(Utils.ANSI_BLUE);
         this.grid = new Token[size][size];
         this.prepareGrid(player1, player2);
         
         this.history = new ArrayList<>();
     }
+    
+    /**
+     * Start getters
+     */
+    
+    public int getGridSize() {
+        return this.grid.length;
+    }
+    
+    public Player getPlayer1() {
+        return this.player1;
+    }
+    
+    public Player getPlayer2() {
+        return this.player2;
+    }
+    
+    public Token[][] getGrid() {
+        return this.grid;
+    }
+    
+    /**
+     * End getters
+     */
+    
+    /**
+     * Start game logic
+     */
     
     /**
      * Populate the grid with the tokens
@@ -77,12 +101,12 @@ public class Game implements Serializable {
         String historyInput = input;
         
         input = input.replace(" ", "");
-        int curY = charToInt(input.charAt(0));
+        int curY = Utils.charToInt(input.charAt(0));
         int curX = this.grid.length - Integer.parseInt(String.valueOf(input.charAt(1)));
-        int newY = charToInt(input.charAt(2));
+        int newY = Utils.charToInt(input.charAt(2));
         int newX = this.grid.length - Integer.parseInt(String.valueOf(input.charAt(3)));
         
-        historyInput = this.grid[curX][curY].getOwner().getColor() + this.grid[curX][curY].getOwner().getAlias() + ANSI_RESET + " -> " + historyInput;
+        historyInput = this.grid[curX][curY].getOwner().getColor() + this.grid[curX][curY].getOwner().getAlias() + Utils.ANSI_RESET + " -> " + historyInput;
         
         // Checking if the owner of the token is the one playing has to be done here
         // Since checking it in isMoveValid() will lead to the valid play list being
@@ -147,9 +171,9 @@ public class Game implements Serializable {
      */
     public String getTurnStatus() {
         if (this.player1.isPlaying()) {
-            return "Es turno de " + this.player1.getColor() + this.player1.getAlias() + ANSI_RESET;
+            return "Es turno de " + this.player1.getColor() + this.player1.getAlias() + Utils.ANSI_RESET;
         } else {
-            return "Es turno de " + this.player2.getColor() + this.player2.getAlias() + ANSI_RESET;
+            return "Es turno de " + this.player2.getColor() + this.player2.getAlias() + Utils.ANSI_RESET;
         }
     }
     
@@ -182,7 +206,7 @@ public class Game implements Serializable {
      * Check if someone is in a check position
      * @return - The player in check position
      */
-    public Player checkCheck() {
+    public Player isInCheckPosition() {
         Player retVal = null;
         
         if (grid.length == 5) {
@@ -223,205 +247,6 @@ public class Game implements Serializable {
     }
     
     /**
-     * Will list all possible moves for a player
-     * @param player - the player to check for possible moves
-     * @return - Moves
-     */
-    public String getPossibleMoveList(Player player) {
-        String retVal = "";
-        
-        ArrayList<String> regularMoves = new ArrayList<>();
-        ArrayList<String> defensiveMoves = new ArrayList<>();
-        ArrayList<String> offensiveMoves = new ArrayList<>();
-        
-        for (int i = 0; i < this.grid.length; i++) {
-            for (int j = 0; j < this.grid[i].length; j++) {
-                if (this.grid[i][j] != null) {
-                    if (this.grid[i][j].getOwner().equals(player)) {
-                        for (int m = 0; m < this.grid.length; m++) {
-                            for (int n = 0; n < this.grid[m].length; n++) {
-                                if (this.isMoveValid(this.grid[i][j], i, j, m, n)) {
-                                    if (isMoveDefensive(m, n)) {
-                                        defensiveMoves.add(makeMoveString(i, j, m, n));
-                                    } else if (isMoveOffensive(m, n)) {
-                                        offensiveMoves.add(makeMoveString(i, j, m, n));
-                                    } else {
-                                        regularMoves.add(makeMoveString(i, j, m, n));
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        }
-
-        if (!defensiveMoves.isEmpty()) {
-            retVal += "Movimientos de defensa\n";
-            for (int i = 0; i < defensiveMoves.size(); i++) {
-                retVal += defensiveMoves.get(i);
-            }
-        }
-        if (!offensiveMoves.isEmpty()) {
-            retVal += "Movimientos de ataque\n";
-            for (int i = 0; i < offensiveMoves.size(); i++) {
-                retVal += offensiveMoves.get(i);
-            }
-        }
-        if (!regularMoves.isEmpty()) {
-            retVal += "Movimientos normales\n";
-            for (int i = 0; i < regularMoves.size(); i++) {
-                retVal += regularMoves.get(i);
-            }
-        }
-        
-        return retVal;
-    }
-    
-    /**
-     * By means of the destination of a move determines whether it is defensive
-     * @param newX - X pos
-     * @param newY - Y pos
-     * @return - Is the destination the player's goal?
-     */
-    private boolean isMoveDefensive(int newX, int newY) {
-        boolean retVal;
-        
-        if (this.grid.length == 5) {
-            if (this.player1.isPlaying()) {
-                retVal = newX == 0 && newY == 2;
-            } else {
-                retVal = newX == 4 && newY == 2;
-            }
-        } else {
-            if (this.player1.isPlaying()) {
-                retVal = newX == 0 && newY == 1;
-            } else {
-                retVal = newX == 2 && newY == 1;
-            }
-        }
-        
-        return retVal;
-    }
-    
-    /**
-     * By means of the destination of a move determines whether it is offensive
-     * If its destination is the opponent's goal it is true
-     * @param newX - X pos
-     * @param newY - Y pos
-     * @return - Is the destination the opponent's goal?
-     */
-    private boolean isMoveOffensive(int newX, int newY) {
-        boolean retVal;
-        
-        if (this.grid.length == 5) {
-            if (this.player1.isPlaying()) {
-                retVal = newX == 4 && newY == 2;
-            } else {
-                retVal = newX == 0 && newY == 2;
-            }
-        } else {
-            if (this.player1.isPlaying()) {
-                retVal = newX == 2 && newY == 1;
-            } else {
-                retVal = newX == 0 && newY == 1;
-            }
-        }
-        
-        return retVal;
-    }
- 
-    /**
-     * Generates a String object to present the grid to the user by means of the terminal
-     * @param rotate - If the grid should be rotated
-     * @return - The beautiful grid
-     */
-    public String getPrintableGrid(boolean rotate) {
-        String retVal = ""; // Value to be returned
-        Token [][] grid = rotate ? rotateGrid() : this.grid;
-        boolean addingElements = false; // Whether the row being added to retVal contains Tokens or only divider characters
-        
-        for (int i = 0; i < grid.length; i++) {
-            // Determines whether the row being added contains part of a goal
-            // If i == 4 the behavior will always be the same, if i == 0 or 1 the behavior is the same in case of the divider
-            boolean hasGoal = i == 0 || (i == 1 && !addingElements) || i == grid.length - 1;
-            
-            for (int j = 0; j < grid[i].length; j++) {
-                // Determines whether the horizontal position corresponds to that of the goal
-                boolean isGoal = hasGoal && j >= (grid[i].length / 2) && j < ((grid[i].length / 2) + 2);
-                
-                if (addingElements) {
-                    if (j == 0) {
-                        if (rotate) {
-                            retVal += i + 1 + " ";
-                        } else {
-                            retVal += grid.length - i + " ";
-                        }
-                    }
-                    
-                    retVal += (isGoal ? (ANSI_GREEN + "*" + ANSI_RESET) : "|") + (grid[i][j] != null ? (grid[i][j] + ANSI_RESET) : " ");
-                } else {
-                    if (j == 0) {
-                        retVal += "  ";
-                    }
-                    
-                    retVal += isGoal ? ((j == (grid[i].length / 2) + 1) ? (ANSI_GREEN + "*" + ANSI_RESET + "-") : (ANSI_GREEN + "**" + ANSI_RESET)) : "+-";
-                }
-            }
-            
-            if (addingElements) {
-                // Finishes a line with Tokens
-                retVal += "|\n";
-                
-                // Subtracts one to the vertical index in order to add elements correctly
-                if (i == grid.length - 1) {
-                    i--;
-                }
-            } else {
-                // Finishes a divider line
-                retVal += "+\n";
-                
-                // Remove escape characters from retVal and store the clean String in memory
-                // Doing this in order for java not to get confused when calculating the length of the String
-                // Since it counts the color escape chars as regular chars
-                String retValWithoutColor = removeColorFromString(retVal);
-                
-                // Subtracts one to the vertical index in order to add the last divider line
-                if ((this.grid.length == 5 && retValWithoutColor.length() < (11 * 11 + 22)) || (this.grid.length == 3 && retValWithoutColor.length() < (7 * 7 + 14))) {
-                    i--;
-                }
-            }
-            
-            // Change addingElements to its opposite value
-            addingElements = !addingElements;
-        }
-        
-        if (rotate) {
-            retVal += grid.length == 5 ? "   E D C B A\n" : "   C B A\n";
-        } else {
-            retVal += grid.length == 5 ? "   A B C D E\n" : "   A B C\n";
-        }
-        
-        return retVal;
-    }
-    
-    public Token[][] rotateGrid() {
-        Token[][] retVal = new Token[this.grid.length][this.grid.length];
-        
-        for (int i = 0; i < this.grid.length; i++) {
-            for (int j = 0; j < this.grid[i].length; j++) {
-                retVal[this.grid.length - i - 1][this.grid[i].length - j - 1] = this.grid[i][j];
-            }
-        }
-        
-        return retVal;
-    }
-    
-    public Token[][] getGrid() {
-        return this.grid;
-    }
-    
-    /**
      * Checks if a move is valid and commits it to the grid
      * @param curX - Current X axis position of the token to move
      * @param curY - Current Y axis position of the token to move
@@ -459,10 +284,10 @@ public class Game implements Serializable {
         boolean isMoveDiagonal = curX != newX && curY != newY && Math.abs(newX-curX) == Math.abs(newY-curY);
         boolean isMoveHorizontal = curX == newX;
         boolean isMoveVertical = curY == newY;
-        boolean hasToDefend = !token.getOwner().equals(checkCheck()) && checkCheck() != null;
+        boolean hasToDefend = !token.getOwner().equals(isInCheckPosition()) && isInCheckPosition() != null;
         boolean isMoveDefensive = isMoveDefensive(newX, newY);
         
-        if (removeColorFromString(token.toString()).equals("T")) {
+        if (Utils.removeColorFromString(token.toString()).equals("T")) {
             // Make sure move is either vertical or horizontal and that the token didnt go over any other token
             retVal = ((isMoveHorizontal || isMoveVertical) && checkLine(curX, curY, newX, newY));
         } else {
@@ -564,16 +389,6 @@ public class Game implements Serializable {
         return retVal;
     }
     
-    public String getPrintableHistory() {
-        String retVal = "";
-
-        for (int i = history.size() - 1; i >= 0; i--) {
-            retVal += history.get(i) + "\n";
-        }
-
-        return retVal;
-    }
-    
     /**
      * Finishes a player's turn and starts the other's
      */
@@ -582,50 +397,212 @@ public class Game implements Serializable {
         this.player2.toggleTurn();
     }
     
-    public int getGridSize() {
-        return this.grid.length;
-    }
-    
-    public Player getPlayer1() {
-        return this.player1;
-    }
-    
-    public Player getPlayer2() {
-        return this.player2;
-    }
+    /**
+     * End game logic
+     */
     
     /**
-     * Transforms the part of the coordinates input as char into a workable int
-     * @param c - the letter coordinate
-     * @return - The index to use in the array
+     * Will list all possible moves for a player
+     * @param player - the player to check for possible moves
+     * @return - Moves
      */
-    private int charToInt(char c) {
-        return ((int) c) - 65;
-    }
-    
-    /**
-     * Takes coordinates and makes the move string
-     * @param curX - Current X axis position of the token to move
-     * @param curY - Current Y axis position of the token to move
-     * @param newX - New X axis position of the token to move
-     * @param newY - New Y axis position of the token to move
-     * @return - The move String like "B1 B2"
-     */
-    private String makeMoveString(int curX, int curY, int newX, int newY) {
-        return String.valueOf((char) (curY + 65)) + (this.grid.length - curX) + " " + String.valueOf((char) (newY + 65)) + (this.grid.length - newX) + "\n";
-    }
-    
-    /**
-     * Removes the color escape characters from a String
-     * @param text - The text to remove the escape chars from
-     * @return - The clean String
-     */
-    private String removeColorFromString(String text) {
-        String retVal = text.replace(ANSI_RESET, "");
-        retVal = retVal.replace(ANSI_RED, "");
-        retVal = retVal.replace(ANSI_BLUE, "");
-        retVal = retVal.replace(ANSI_GREEN, "");
+    public String getPossibleMoveList(Player player) {
+        String retVal = "";
         
+        ArrayList<String> regularMoves = new ArrayList<>();
+        ArrayList<String> defensiveMoves = new ArrayList<>();
+        ArrayList<String> offensiveMoves = new ArrayList<>();
+        
+        for (int i = 0; i < this.grid.length; i++) {
+            for (int j = 0; j < this.grid[i].length; j++) {
+                if (this.grid[i][j] != null) {
+                    if (this.grid[i][j].getOwner().equals(player)) {
+                        for (int m = 0; m < this.grid.length; m++) {
+                            for (int n = 0; n < this.grid[m].length; n++) {
+                                if (this.isMoveValid(this.grid[i][j], i, j, m, n)) {
+                                    if (isMoveDefensive(m, n)) {
+                                        defensiveMoves.add(Utils.makeMoveString(this, i, j, m, n));
+                                    } else if (isMoveOffensive(m, n)) {
+                                        offensiveMoves.add(Utils.makeMoveString(this, i, j, m, n));
+                                    } else {
+                                        regularMoves.add(Utils.makeMoveString(this, i, j, m, n));
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        if (!defensiveMoves.isEmpty()) {
+            retVal += "Movimientos de defensa\n";
+            for (int i = 0; i < defensiveMoves.size(); i++) {
+                retVal += defensiveMoves.get(i);
+            }
+        }
+        if (!offensiveMoves.isEmpty()) {
+            retVal += "Movimientos de ataque\n";
+            for (int i = 0; i < offensiveMoves.size(); i++) {
+                retVal += offensiveMoves.get(i);
+            }
+        }
+        if (!regularMoves.isEmpty()) {
+            retVal += "Movimientos normales\n";
+            for (int i = 0; i < regularMoves.size(); i++) {
+                retVal += regularMoves.get(i);
+            }
+        }
+        
+        return retVal;
+    }
+    
+    /**
+     * By means of the destination of a move determines whether it is defensive
+     * @param newX - X pos
+     * @param newY - Y pos
+     * @return - Is the destination the player's goal?
+     */
+    private boolean isMoveDefensive(int newX, int newY) {
+        boolean retVal;
+        
+        if (this.grid.length == 5) {
+            if (this.player1.isPlaying()) {
+                retVal = newX == 0 && newY == 2;
+            } else {
+                retVal = newX == 4 && newY == 2;
+            }
+        } else {
+            if (this.player1.isPlaying()) {
+                retVal = newX == 0 && newY == 1;
+            } else {
+                retVal = newX == 2 && newY == 1;
+            }
+        }
+        
+        return retVal;
+    }
+    
+    /**
+     * By means of the destination of a move determines whether it is offensive
+     * If its destination is the opponent's goal it is true
+     * @param newX - X pos
+     * @param newY - Y pos
+     * @return - Is the destination the opponent's goal?
+     */
+    private boolean isMoveOffensive(int newX, int newY) {
+        boolean retVal;
+        
+        if (this.grid.length == 5) {
+            if (this.player1.isPlaying()) {
+                retVal = newX == 4 && newY == 2;
+            } else {
+                retVal = newX == 0 && newY == 2;
+            }
+        } else {
+            if (this.player1.isPlaying()) {
+                retVal = newX == 2 && newY == 1;
+            } else {
+                retVal = newX == 0 && newY == 1;
+            }
+        }
+        
+        return retVal;
+    }
+    
+    /**
+     * Generates a String object to present the grid to the user by means of the terminal
+     * @param rotate - If the grid should be rotated
+     * @return - The beautiful grid
+     */
+    public String getPrintableGrid(boolean rotate) {
+        String retVal = ""; // Value to be returned
+        Token [][] grid = rotate ? rotateGrid() : this.grid;
+        boolean addingElements = false; // Whether the row being added to retVal contains Tokens or only divider characters
+        
+        for (int i = 0; i < grid.length; i++) {
+            // Determines whether the row being added contains part of a goal
+            // If i == 4 the behavior will always be the same, if i == 0 or 1 the behavior is the same in case of the divider
+            boolean hasGoal = i == 0 || (i == 1 && !addingElements) || i == grid.length - 1;
+            
+            for (int j = 0; j < grid[i].length; j++) {
+                // Determines whether the horizontal position corresponds to that of the goal
+                boolean isGoal = hasGoal && j >= (grid[i].length / 2) && j < ((grid[i].length / 2) + 2);
+                
+                if (addingElements) {
+                    if (j == 0) {
+                        if (rotate) {
+                            retVal += i + 1 + " ";
+                        } else {
+                            retVal += grid.length - i + " ";
+                        }
+                    }
+                    
+                    retVal += (isGoal ? (Utils.ANSI_GREEN + "*" + Utils.ANSI_RESET) : "|") + (grid[i][j] != null ? (grid[i][j] + Utils.ANSI_RESET) : " ");
+                } else {
+                    if (j == 0) {
+                        retVal += "  ";
+                    }
+                    
+                    retVal += isGoal ? ((j == (grid[i].length / 2) + 1) ? (Utils.ANSI_GREEN + "*" + Utils.ANSI_RESET + "-") : (Utils.ANSI_GREEN + "**" + Utils.ANSI_RESET)) : "+-";
+                }
+            }
+            
+            if (addingElements) {
+                // Finishes a line with Tokens
+                retVal += "|\n";
+                
+                // Subtracts one to the vertical index in order to add elements correctly
+                if (i == grid.length - 1) {
+                    i--;
+                }
+            } else {
+                // Finishes a divider line
+                retVal += "+\n";
+                
+                // Remove escape characters from retVal and store the clean String in memory
+                // Doing this in order for java not to get confused when calculating the length of the String
+                // Since it counts the color escape chars as regular chars
+                String retValWithoutColor = Utils.removeColorFromString(retVal);
+                
+                // Subtracts one to the vertical index in order to add the last divider line
+                if ((this.grid.length == 5 && retValWithoutColor.length() < (11 * 11 + 22)) || (this.grid.length == 3 && retValWithoutColor.length() < (7 * 7 + 14))) {
+                    i--;
+                }
+            }
+            
+            // Change addingElements to its opposite value
+            addingElements = !addingElements;
+        }
+        
+        if (rotate) {
+            retVal += grid.length == 5 ? "   E D C B A\n" : "   C B A\n";
+        } else {
+            retVal += grid.length == 5 ? "   A B C D E\n" : "   A B C\n";
+        }
+        
+        return retVal;
+    }
+    
+    public Token[][] rotateGrid() {
+        Token[][] retVal = new Token[this.grid.length][this.grid.length];
+        
+        for (int i = 0; i < this.grid.length; i++) {
+            for (int j = 0; j < this.grid[i].length; j++) {
+                retVal[this.grid.length - i - 1][this.grid[i].length - j - 1] = this.grid[i][j];
+            }
+        }
+        
+        return retVal;
+    }
+    
+    public String getPrintableHistory() {
+        String retVal = "";
+
+        for (int i = history.size() - 1; i >= 0; i--) {
+            retVal += history.get(i) + "\n";
+        }
+
         return retVal;
     }
 }
