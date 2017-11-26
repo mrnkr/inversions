@@ -169,10 +169,16 @@ public class UserRegistrationForm extends javax.swing.JFrame {
         
         try {
             age = Integer.parseInt(myAgeField.getText());
+            
+            if (age < 3 || age > 100) {
+                JOptionPane.showMessageDialog(this, "La edad debe estar entre 3 y 100", "Error", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
         } catch (Exception e) {
             JOptionPane.showMessageDialog(this, "La edad debería ser un número", "Error", JOptionPane.ERROR_MESSAGE);
             return;
         }
+        
         Player player = new Player(myNameField.getText(),myAliasField.getText(), age);
                 
         if(this.system.addPlayer(player)) {
