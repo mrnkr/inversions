@@ -78,7 +78,7 @@ public class MySystem implements Serializable {
             this.myPanel = new JFXPanel();
             this.media = new Media(getClass().getResource(MUSIC_FILE).toURI().toString());
             this.mediaPlayer = new MediaPlayer(media);
-            this.mediaPlayer.setAutoPlay(true);
+            this.mediaPlayer.setCycleCount(MediaPlayer.INDEFINITE);
         } catch (Exception e) {
             e.printStackTrace();
         }
